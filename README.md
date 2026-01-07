@@ -15,7 +15,7 @@ La aplicación sigue un enfoque modular:
 - **Backend**
   - Lenguae: **Go**.
   - Framework principal: **Gin** (HTTP handler).
-  - Runtime: **Bun**.
+  - ORM: **Bun**.
   - Configuración: **Godotenv**.
   - Comunicación en tiempo real: **Gorilla Websocket**.
   - Base de datos: **PostgreSQL**.
