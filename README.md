@@ -2,13 +2,14 @@
 
 ---
 
+# Hexa
 Plataforma de subastas en tiempo real con arquitectura hexagonal.
 
-# Descripción
+## Descripción
 Hexa es una aplicación web que permite a usuarios autenticados crear y participar en subastas de productos, con soporte para pagos seguros, notificaciones en tiempo real y gestión de disputas.  
 El proyecto está diseñado con **arquitectura hexagonal (Ports & Adapters)** para garantizar mantenibilidad, escalabilidad y separación de responsabilidades.
 
-# Arquitectura
+## Arquitectura
 La aplicación sigue un enfoque modular:
 
 - **Backend**
@@ -30,7 +31,7 @@ La aplicación sigue un enfoque modular:
 
 El diseño asegura que la lógica de negocio esté desacoplada de frameworks y librerías externas.
 
-# Historias de Usuario
+## Historias de Usuario
 Principales funcionalidades definidas:
 
 - **Exploración**
@@ -59,16 +60,20 @@ Principales funcionalidades definidas:
   - Información personal, métodos de pago vinculados y métricas.
   - Historial de transacciones con scroll infinito.
 
-# Criterios Clave
+## Criterios Clave
 - Ofertas y notificaciones en **tiempo real**.
 - Manejo seguro de pagos con estados: disponible, congelado, completado, cancelado.
 - **Bloqueos de base de datos (Pessimistic Locking)** para garantizar integridad en las ofertas.
 - Moderación con reglas claras para disputas y penalizaciones.
 
-# Documentación
-## Historias de usuario
-[Descargar (.docx)](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Historias%20de%20usuario.docx?raw=true)
-## Diagrama de arquitectura
+## Documentación
+Archivos de la documentación de Hexa
+
+### Historias de usuario
+[Descargar historias de usuario (en formato .docx)](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Historias%20de%20usuario.docx?raw=true)
+
+### Diagrama de arquitectura
 ![Hexa SVG architecture diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Diagrama%20de%20arquitectura.svg?raw=true)
-## Diagrama de Entidad-Relación
+
+### Diagrama de Entidad-Relación
 ![Hexa SVG entity-relation diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Diagrama%20Entidad-Relación.svg?raw=true)
