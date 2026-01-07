@@ -70,7 +70,7 @@ Principales funcionalidades definidas:
 Archivos de la documentación de Hexa
 
 ### Historias de usuario
-[Descargar historias de usuario (en formato .docx)](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Historias%20de%20usuario.docx?raw=true)
+[Descargar historias de usuario (PDF)](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Historias%20de%20usuario.pdf?raw=true)
 
 ### Diagrama de arquitectura
 ![Hexa SVG architecture diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Diagrama%20de%20arquitectura.svg?raw=true)
