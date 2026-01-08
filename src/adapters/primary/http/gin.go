@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lautarok/hexa/src/app/ports"
+	"github.com/lautarok/hexa/src/app/global_ports"
 )
 
 type GinAdapter struct {
@@ -12,7 +12,7 @@ type GinAdapter struct {
 	Router gin.IRouter
 }
 
-func NewGinAdapter(routerPrefix string, prodEnv bool) ports.HTTPPort {
+func NewGinAdapter(routerPrefix string, prodEnv bool) global_ports.HTTPPort {
 	if prodEnv {
 		gin.SetMode("release")
 	} else {
@@ -34,7 +34,7 @@ func (adapter *GinAdapter) Start(addr string) error {
 	return err
 }
 
-func (adapter *GinAdapter) RegisterControllers(controllers ...ports.HTTPRouteRegister) {
+func (adapter *GinAdapter) RegisterControllers(controllers ...global_ports.HTTPRouteRegister) {
 	for _, controller := range controllers {
 		controller.Register(adapter.Router)
 	}
