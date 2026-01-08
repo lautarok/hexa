@@ -1,8 +1,11 @@
-![Hexa SVG logo](https://github.com/lautarok/hexa/blob/backend/assets/logo.svg?raw=true)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/lautarok/hexa/blob/backend/assets/logo-dark.svg?raw=true">
+  <img src="https://github.com/lautarok/hexa/blob/backend/assets/logo.svg?raw=true" alt="Hexa SVG logo">
+</picture>
 
 ---
 
-# Hexa
+# Hexa - subastas en linea
 Plataforma de subastas en tiempo real con arquitectura hexagonal.
 
 ## Descripción
