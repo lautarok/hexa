@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lautarok/hexa/src/app/shared/ports"
+	"github.com/lautarok/hexa/src/app/ports"
 )
 
 type GinAdapter struct {

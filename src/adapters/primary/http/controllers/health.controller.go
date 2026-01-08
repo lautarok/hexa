@@ -1,4 +1,4 @@
-package health
+package controllers
 
 import (
 	"log"
@@ -9,18 +9,10 @@ import (
 )
 
 type HealthController struct {
-	healthService  *HealthService
-	controllerName string
 }
 
-type HealthControllerDeps struct {
-	HealthService *HealthService
-}
-
-func NewHealthController(deps *HealthControllerDeps) *HealthController {
-	return &HealthController{
-		healthService: deps.HealthService,
-	}
+func NewHealthController() *HealthController {
+	return &HealthController{}
 }
 
 func (controller *HealthController) Register(router any) {
@@ -37,12 +29,9 @@ func (controller *HealthController) Register(router any) {
 }
 
 func (controller *HealthController) GetHealth(ctx *gin.Context) {
-	health, err := controller.healthService.GetHealth()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"message": "Internal server error",
-		})
-	}
-
-	ctx.JSON(http.StatusOK, health)
+	ctx.JSON(http.StatusOK, map[string]any{
+		"statusCode":     http.StatusOK,
+		"health":         "100%",
+		"responseTimeMs": 0,
+	})
 }

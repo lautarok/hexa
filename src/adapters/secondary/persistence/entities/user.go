@@ -4,11 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/lautarok/hexa/src/app/domain"
 	"github.com/uptrace/bun"
 )
 
 type User struct {
-	ID         string      `bun:"id,type:uuid,pk,default:uuid_generate_v4()"`
+	ID         string      `bun:"id,type:uuid,pk,default:gen_random_uuid()"`
 	Name       string      `bun:"name,notnull,type:varchar(40)"`
 	Surname    string      `bun:"surname,notnull,type:varchar(40)"`
 	RoleID     string      `bun:"role_id,type:uuid,notnull"`
@@ -21,4 +22,24 @@ type User struct {
 func (entity *User) BeforeUpdate(ctx context.Context, query bun.Query) error {
 	entity.UpdatedAt = time.Now()
 	return nil
+}
+
+func (entity *User) ToDomain() *domain.User {
+	user := &domain.User{
+		ID:        entity.ID,
+		Name:      entity.Name,
+		Surname:   entity.Surname,
+		CreatedAt: entity.CreatedAt,
+		UpdatedAt: entity.UpdatedAt,
+	}
+
+	if entity.Role != nil {
+		user.Role = entity.Role.ToDomain()
+	}
+
+	if entity.Credential != nil {
+		user.Credential = entity.Credential.ToDomain()
+	}
+
+	return user
 }
