@@ -5,12 +5,12 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/lautarok/hexa/src/app/global_ports"
+	"github.com/lautarok/hexa/src/app/ports"
 )
 
 type GodotEnvAdapter struct{}
 
-func NewGodotEnvAdapter() global_ports.EnvPort {
+func NewGodotEnvAdapter() ports.EnvPort {
 	return &GodotEnvAdapter{}
 }
 

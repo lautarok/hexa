@@ -1,4 +1,4 @@
-package global_ports
+package ports
 
 type EnvPort interface {
 	Load() error

@@ -1,4 +1,4 @@
-package global_ports
+package ports
 
 type HTTPPort interface {
 	Start(addr string) error
