@@ -26,7 +26,6 @@ type GetUserListInput struct {
 	Limit int
 }
 
-// SACAR DTOs
 func (service *GetUsersUsecase) GetUserList(
 	ctx context.Context,
 	input *GetUserListInput,
