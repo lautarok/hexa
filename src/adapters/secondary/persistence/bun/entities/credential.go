@@ -4,13 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lautarok/hexa/src/app/domain"
 	"github.com/uptrace/bun"
 )
 
 type Credential struct {
-	ID           string    `bun:"id,type:uuid,pk,default:gen_random_uuid(),notnull"`
-	UserID       string    `bun:"user_id,type:uuid,notnull,unique"`
+	ID           uuid.UUID `bun:"id,type:uuid,pk,default:gen_random_uuid(),notnull"`
+	UserID       uuid.UUID `bun:"user_id,type:uuid,notnull,unique"`
 	User         *User     `bun:"rel:belongs-to,join:user_id=id"`
 	Email        string    `bun:"email,type:varchar(200),notnull,unique"`
 	Username     string    `bun:"username,type:varchar(25),notnull,unique"`
@@ -39,4 +40,18 @@ func (entity *Credential) ToDomain() *domain.Credential {
 	}
 
 	return credential
+}
+
+func (entity *Credential) FromDomain(domain *domain.Credential) {
+	entity.ID = domain.ID
+	entity.Email = domain.Email
+	entity.Username = domain.Username
+	entity.CreatedAt = domain.CreatedAt
+	entity.UpdatedAt = domain.UpdatedAt
+
+	if domain.User != nil {
+		var user User
+		user.FromDomain(domain.User)
+		entity.User = &user
+	}
 }

@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,16 +13,12 @@ func NewHealthController() *HealthController {
 	return &HealthController{}
 }
 
-func (controller *HealthController) Register(router any) {
-	controllerName := "health"
+func (controller *HealthController) Name() string {
+	return "health"
+}
 
-	ginRouter, ok := router.(gin.IRouter)
-	if !ok {
-		log.Println("Controller [" + strings.ToUpper(controllerName) + "] only works with Gin")
-		return
-	}
-
-	group := ginRouter.Group(controllerName)
+func (controller *HealthController) Register(router *gin.RouterGroup) {
+	group := router.Group(controller.Name())
 	group.GET("", controller.GetHealth)
 }
 

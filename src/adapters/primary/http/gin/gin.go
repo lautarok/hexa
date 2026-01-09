@@ -1,18 +1,17 @@
-package http
+package gin
 
 import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lautarok/hexa/src/app/ports"
 )
 
 type GinAdapter struct {
 	Engine *gin.Engine
-	Router gin.IRouter
+	Router *gin.RouterGroup
 }
 
-func NewGinAdapter(routerPrefix string, prodEnv bool) ports.HTTPPort {
+func NewGinAdapter(routerPrefix string, prodEnv bool) *GinAdapter {
 	if prodEnv {
 		gin.SetMode("release")
 	} else {
@@ -34,8 +33,19 @@ func (adapter *GinAdapter) Start(addr string) error {
 	return err
 }
 
-func (adapter *GinAdapter) RegisterControllers(controllers ...ports.HTTPRouteRegister) {
+type Controller interface {
+	Name() string
+	Register(group *gin.RouterGroup)
+}
+
+func (adapter *GinAdapter) RegisterControllers(controllers ...Controller) {
 	for _, controller := range controllers {
 		controller.Register(adapter.Router)
+	}
+}
+
+func (adapter *GinAdapter) RegisterGlobalMiddlewares(middlewares ...gin.HandlerFunc) {
+	for _, middleware := range middlewares {
+		adapter.Router.Use(middleware)
 	}
 }

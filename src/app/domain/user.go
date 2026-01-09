@@ -3,18 +3,21 @@ package domain
 import (
 	"context"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type User struct {
-	ID         string      `validate:"required,uuid"`
-	Role       *Role       `validate:"required"`
-	Name       string      `validate:"required,min=3,max=40"`
-	Surname    string      `validate:"required,min=3,max=40"`
-	Credential *Credential `validate:"required"`
+	ID         uuid.UUID   `validation:"required,uuid"`
+	Role       *Role       `validation:"required"`
+	Name       string      `validation:"required,min=3,max=40"`
+	Surname    string      `validation:"required,min=3,max=40"`
+	Credential *Credential `validation:"required"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
 
 type IUsersRepository interface {
-	FindMany(ctx context.Context, take int, limit int) ([]*User, error)
+	FindMany(ctx context.Context, skip int, limit int) ([]*User, error)
+	CreateOne(ctx context.Context, domainUser *User) (*User, error)
 }

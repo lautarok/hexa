@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lautarok/hexa/src/app/usecases"
@@ -23,16 +21,12 @@ func NewUsersController(deps *UsersControllerDeps) *UsersController {
 	}
 }
 
-func (controller *UsersController) Register(router any) {
-	controllerName := "users"
+func (controller *UsersController) Name() string {
+	return "users"
+}
 
-	ginRouter, ok := router.(gin.IRouter)
-	if !ok {
-		log.Println("Controller [" + strings.ToUpper(controllerName) + "] only works with Gin")
-		return
-	}
-
-	group := ginRouter.Group(controllerName)
+func (controller *UsersController) Register(router *gin.RouterGroup) {
+	group := router.Group(controller.Name())
 	group.GET("/", controller.GetUserList)
 }
 
