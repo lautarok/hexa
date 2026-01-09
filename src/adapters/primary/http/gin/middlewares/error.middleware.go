@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lautarok/hexa/src/app/domain"
-	dto "github.com/lautarok/hexa/src/app/dtos"
+	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/dtos"
 )
 
 type ErrorMiddleware struct{}
@@ -16,7 +16,7 @@ func NewErrorMiddleware() *ErrorMiddleware {
 }
 
 func sendInternalError(ctx *gin.Context) {
-	ctx.JSON(http.StatusInternalServerError, &dto.AppErrorDto{
+	ctx.JSON(http.StatusInternalServerError, &dtos.AppErrorDto{
 		StatusCode: 500,
 		Code:       "InternalError",
 		Message:    "Internal server error",
@@ -56,7 +56,7 @@ func (middleware *ErrorMiddleware) HandleErrors(ctx *gin.Context) {
 			)
 		}
 
-		ctx.JSON(statusCode, &dto.AppErrorDto{
+		ctx.JSON(statusCode, &dtos.AppErrorDto{
 			StatusCode: statusCode,
 			Code:       appError.Code,
 			Message:    appError.Message,

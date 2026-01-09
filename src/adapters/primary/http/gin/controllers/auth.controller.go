@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	dto "github.com/lautarok/hexa/src/app/dtos"
-	"github.com/lautarok/hexa/src/app/errors"
-	"github.com/lautarok/hexa/src/app/ports"
-	"github.com/lautarok/hexa/src/app/usecases"
+	"github.com/lautarok/hexa/src/application/errors"
+	"github.com/lautarok/hexa/src/application/ports"
+	"github.com/lautarok/hexa/src/application/usecases"
+	"github.com/lautarok/hexa/src/dtos"
 )
 
 type AuthController struct {
@@ -38,7 +38,7 @@ func (controller *AuthController) Register(router *gin.RouterGroup) {
 }
 
 func (controller *AuthController) Signup(ctx *gin.Context) {
-	var reqBody dto.SignupInputDto
+	var reqBody dtos.SignupInputDto
 	if err := ctx.ShouldBindBodyWithJSON(&reqBody); err != nil {
 		ctx.Error(
 			errors.NewInvalidInputError("Wrong body"),
@@ -63,11 +63,13 @@ func (controller *AuthController) Signup(ctx *gin.Context) {
 		Password: reqBody.Password,
 	}
 
-	signup, err := controller.signupUsecase.Signup(ctx, usecaseInput)
+	token, err := controller.signupUsecase.Signup(ctx, usecaseInput)
 	if err != nil {
 		ctx.Error(err)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, signup)
+	ctx.JSON(http.StatusCreated, &dtos.TokenOutputDto{
+		Token: token,
+	})
 }

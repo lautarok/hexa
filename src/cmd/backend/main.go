@@ -10,7 +10,7 @@ import (
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/repositories"
 	"github.com/lautarok/hexa/src/adapters/secondary/validation/validator"
-	"github.com/lautarok/hexa/src/app/usecases"
+	"github.com/lautarok/hexa/src/application/usecases"
 )
 
 func main() {

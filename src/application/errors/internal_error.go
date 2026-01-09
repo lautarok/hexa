@@ -1,6 +1,6 @@
 package errors
 
-import "github.com/lautarok/hexa/src/app/domain"
+import "github.com/lautarok/hexa/src/application/domain"
 
 var ErrorInternal = &domain.AppError{
 	Code:    "InternalError",

@@ -3,10 +3,9 @@ package usecases
 import (
 	"context"
 
-	"github.com/lautarok/hexa/src/app/domain"
-	dto "github.com/lautarok/hexa/src/app/dtos"
-	"github.com/lautarok/hexa/src/app/errors"
-	"github.com/lautarok/hexa/src/app/ports"
+	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/application/errors"
+	"github.com/lautarok/hexa/src/application/ports"
 )
 
 type SignupUsecase struct {
@@ -37,7 +36,7 @@ type SignupUsecaseInput struct {
 	Password string
 }
 
-func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseInput) (*dto.TokenOutputDto, *domain.AppError) {
+func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseInput) (string, *domain.AppError) {
 	err := usecase.persistenceAdapter.Transaction(ctx, func(ctx context.Context) error {
 		insertedUser, repoErr := usecase.usersRepository.CreateOne(ctx, &domain.User{
 			Name:    input.Name,
@@ -66,13 +65,11 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 
 	if err != nil {
 		if usecase.persistenceAdapter.IsUniqueViolation(err) {
-			return nil, errors.NewAlreadyExistsError("Email or username already exists")
+			return "", errors.NewAlreadyExistsError("Email or username already exists")
 		}
 
-		return nil, errors.NewInternalError(err)
+		return "", errors.NewInternalError(err)
 	}
 
-	return &dto.TokenOutputDto{
-		Token: "Hola mundo",
-	}, nil
+	return "hardcoded_token_xd", nil
 }

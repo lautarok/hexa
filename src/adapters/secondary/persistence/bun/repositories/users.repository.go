@@ -5,7 +5,7 @@ import (
 
 	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
-	"github.com/lautarok/hexa/src/app/domain"
+	"github.com/lautarok/hexa/src/application/domain"
 	"github.com/uptrace/bun"
 )
 

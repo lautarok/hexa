@@ -4,7 +4,7 @@ import (
 	"regexp"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/lautarok/hexa/src/app/ports"
+	"github.com/lautarok/hexa/src/application/ports"
 )
 
 type ValidatorAdapter struct {
