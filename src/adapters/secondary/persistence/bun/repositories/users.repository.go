@@ -31,6 +31,7 @@ func (repository *UsersRepository) FindMany(ctx context.Context, skip int, limit
 		Column("id", "name", "surname", "created_at").
 		Limit(limit).
 		Offset(skip).
+		OrderBy("created_at", bun.OrderDesc).
 		Model(&userList).
 		Relation("Credential", func(sq *bun.SelectQuery) *bun.SelectQuery {
 			return sq.Column("id", "username", "email")
