@@ -3,9 +3,8 @@ package bun
 import (
 	"context"
 	"database/sql"
-	"log"
+	"strings"
 
-	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -26,22 +25,7 @@ func NewBunAdapter(deps *BunAdapterDeps) *BunAdapter {
 
 	db := bun.NewDB(sqldb, pgdialect.New())
 
-	db.RegisterModel((*entities.RolePermission)(nil))
-	db.RegisterModel((*entities.Permission)(nil))
-	db.RegisterModel((*entities.Role)(nil))
-	db.RegisterModel((*entities.Credential)(nil))
-	db.RegisterModel((*entities.User)(nil))
-
-	ctx := context.Background()
-
-	_, err := db.NewCreateTable().Model((*entities.Permission)(nil)).IfNotExists().Exec(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	db.NewCreateTable().Model((*entities.Role)(nil)).IfNotExists().Exec(ctx)
-	db.NewCreateTable().Model((*entities.RolePermission)(nil)).IfNotExists().Exec(ctx)
-	db.NewCreateTable().Model((*entities.User)(nil)).IfNotExists().Exec(ctx)
-	db.NewCreateTable().Model((*entities.Credential)(nil)).IfNotExists().Exec(ctx)
+	SetupInitialTables(db)
 
 	return &BunAdapter{
 		db: db,
@@ -69,4 +53,8 @@ func (adapter *BunAdapter) Transaction(
 			return function(ctxWithTx)
 		},
 	)
+}
+
+func (adapter *BunAdapter) IsUniqueViolation(err error) bool {
+	return strings.Contains(err.Error(), "23505")
 }

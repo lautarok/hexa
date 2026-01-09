@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -46,6 +47,13 @@ func (middleware *ErrorMiddleware) HandleErrors(ctx *gin.Context) {
 			statusCode = 400
 		case "AlreadyExists":
 			statusCode = 409
+		case "InternalError":
+			log.Printf(
+				"%s [%s] INTERNAL ERROR: %s",
+				ctx.FullPath(),
+				ctx.Request.Method,
+				appError.Message,
+			)
 		}
 
 		ctx.JSON(statusCode, &dto.AppErrorDto{

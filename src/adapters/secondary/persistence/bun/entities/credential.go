@@ -10,14 +10,14 @@ import (
 )
 
 type Credential struct {
-	ID           uuid.UUID `bun:"id,type:uuid,pk,default:gen_random_uuid(),notnull"`
-	UserID       uuid.UUID `bun:"user_id,type:uuid,notnull,unique"`
-	User         *User     `bun:"rel:belongs-to,join:user_id=id"`
-	Email        string    `bun:"email,type:varchar(200),notnull,unique"`
-	Username     string    `bun:"username,type:varchar(25),notnull,unique"`
-	PasswordHash string    `bun:"password,type:varchar(255),notnull"`
-	CreatedAt    time.Time `bun:"created_at,type:timestamp,notnull,default:current_timestamp"`
-	UpdatedAt    time.Time `bun:"updated_at,type:timestamp,notnull,default:current_timestamp"`
+	ID        uuid.UUID `bun:"id,type:uuid,pk,default:gen_random_uuid(),notnull,nullzero"`
+	UserID    uuid.UUID `bun:"user_id,type:uuid,notnull,nullzero,unique"`
+	User      *User     `bun:"rel:belongs-to,join:user_id=id"`
+	Email     string    `bun:"email,type:varchar(200),notnull,nullzero,unique"`
+	Username  string    `bun:"username,type:varchar(25),notnull,nullzero,unique"`
+	Password  string    `bun:"password,type:varchar(255),notnull,nullzero"`
+	CreatedAt time.Time `bun:"created_at,type:timestamp,notnull,nullzero,default:current_timestamp"`
+	UpdatedAt time.Time `bun:"updated_at,type:timestamp,notnull,nullzero,default:current_timestamp"`
 }
 
 func (entity *Credential) BeforeUpdate(ctx context.Context, query bun.Query) error {
@@ -27,12 +27,12 @@ func (entity *Credential) BeforeUpdate(ctx context.Context, query bun.Query) err
 
 func (entity *Credential) ToDomain() *domain.Credential {
 	credential := &domain.Credential{
-		ID:           entity.ID,
-		Email:        entity.Email,
-		Username:     entity.Username,
-		PasswordHash: entity.PasswordHash,
-		CreatedAt:    entity.CreatedAt,
-		UpdatedAt:    entity.UpdatedAt,
+		ID:        entity.ID,
+		Email:     entity.Email,
+		Username:  entity.Username,
+		Password:  entity.Password,
+		CreatedAt: entity.CreatedAt,
+		UpdatedAt: entity.UpdatedAt,
 	}
 
 	if entity.User != nil {
@@ -46,6 +46,7 @@ func (entity *Credential) FromDomain(domain *domain.Credential) {
 	entity.ID = domain.ID
 	entity.Email = domain.Email
 	entity.Username = domain.Username
+	entity.Password = domain.Password
 	entity.CreatedAt = domain.CreatedAt
 	entity.UpdatedAt = domain.UpdatedAt
 
@@ -53,5 +54,6 @@ func (entity *Credential) FromDomain(domain *domain.Credential) {
 		var user User
 		user.FromDomain(domain.User)
 		entity.User = &user
+		entity.UserID = entity.User.ID
 	}
 }

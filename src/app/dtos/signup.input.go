@@ -1,4 +1,4 @@
-package dto
+package dtos
 
 type SignupInputDto struct {
 	Name           string `validate:"required,min=3,max=40"`

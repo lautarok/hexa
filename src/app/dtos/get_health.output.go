@@ -1,4 +1,4 @@
-package dto
+package dtos
 
 type GetHealthOutputDto struct {
 	StatusCode       int    `json:"statusCode"`

@@ -7,4 +7,5 @@ type PersistencePort interface {
 		ctx context.Context,
 		function func(ctx context.Context) error,
 	) error
+	IsUniqueViolation(err error) bool
 }

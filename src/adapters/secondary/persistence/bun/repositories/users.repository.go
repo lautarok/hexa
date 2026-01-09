@@ -3,17 +3,18 @@ package repositories
 import (
 	"context"
 
-	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
+	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
 	"github.com/lautarok/hexa/src/app/domain"
+	"github.com/uptrace/bun"
 )
 
 type UsersRepository struct {
-	dbAdapter *bun.BunAdapter
+	dbAdapter *bunPersistence.BunAdapter
 }
 
 type UsersRepositoryDeps struct {
-	DBAdapter *bun.BunAdapter
+	DBAdapter *bunPersistence.BunAdapter
 }
 
 func NewUsersRepository(deps *UsersRepositoryDeps) domain.IUsersRepository {
@@ -27,7 +28,13 @@ func (repository *UsersRepository) FindMany(ctx context.Context, skip int, limit
 
 	var userList []*entities.User
 	err := db.NewSelect().
+		Column("id", "name", "surname", "created_at").
+		Limit(limit).
+		Offset(skip).
 		Model(&userList).
+		Relation("Credential", func(sq *bun.SelectQuery) *bun.SelectQuery {
+			return sq.Column("id", "username", "email")
+		}).
 		Scan(ctx)
 	if err != nil {
 		return nil, err

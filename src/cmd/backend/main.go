@@ -50,6 +50,7 @@ func main() {
 	})
 	usersController := controllers.NewUsersController(&controllers.UsersControllerDeps{
 		GetUsersUsecase: getUsersUsecase,
+		Validation:      validation,
 	})
 
 	credentialsRepository := repositories.NewCredentialsRepository(&repositories.CredentialsRepositoryDeps{

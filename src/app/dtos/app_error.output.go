@@ -1,4 +1,4 @@
-package dto
+package dtos
 
 type AppErrorDto struct {
 	Code       string `json:"code"`

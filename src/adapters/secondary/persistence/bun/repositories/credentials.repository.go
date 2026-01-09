@@ -26,7 +26,32 @@ func (repository *CredentialsRepository) FindByUsernameOrEmail(
 	ctx context.Context,
 	usernameOrEmail string,
 ) (*domain.Credential, error) {
-	return &domain.Credential{}, nil
+	db := repository.dbAdapter.GetDB(ctx)
+
+	var credential entities.Credential
+	err := db.NewSelect().
+		Model(&credential).
+		Where("username = ? OR email = ?", usernameOrEmail).
+		Scan(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return credential.ToDomain(), err
+}
+
+func (repository *CredentialsRepository) UsernameOrEmailExists(
+	ctx context.Context,
+	usernameOrEmail string,
+) (bool, error) {
+	db := repository.dbAdapter.GetDB(ctx)
+
+	var credential entities.Credential
+	return db.NewSelect().
+		Model(&credential).
+		Where("username = ? OR email = ?", usernameOrEmail).
+		Exists(ctx)
 }
 
 func (repository *CredentialsRepository) CreateOne(ctx context.Context, domainCredential *domain.Credential) (*domain.Credential, error) {

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lautarok/hexa/src/app/domain"
 	dto "github.com/lautarok/hexa/src/app/dtos"
 	"github.com/lautarok/hexa/src/app/errors"
 	"github.com/lautarok/hexa/src/app/ports"
@@ -41,24 +40,25 @@ func (controller *AuthController) Register(router *gin.RouterGroup) {
 func (controller *AuthController) Signup(ctx *gin.Context) {
 	var reqBody dto.SignupInputDto
 	if err := ctx.ShouldBindBodyWithJSON(&reqBody); err != nil {
-		ctx.Error(&domain.AppError{
-			Code:    errors.ErrorInvalidInput.Code,
-			Message: "Wrong body",
-		})
+		ctx.Error(
+			errors.NewInvalidInputError("Wrong body"),
+		)
 		return
 	}
 
 	if err := controller.validation.Struct(reqBody); err != nil {
-		ctx.Error(&domain.AppError{
-			Code:    errors.ErrorInvalidInput.Code,
-			Message: strings.Split(err.Error(), "\n")[0],
-		})
+		ctx.Error(
+			errors.NewInvalidInputError(
+				strings.Split(err.Error(), "\n")[0],
+			),
+		)
 		return
 	}
 
 	usecaseInput := &usecases.SignupUsecaseInput{
 		Name:     reqBody.Name,
 		Surname:  reqBody.Surname,
+		Email:    reqBody.Email,
 		Username: reqBody.Username,
 		Password: reqBody.Password,
 	}

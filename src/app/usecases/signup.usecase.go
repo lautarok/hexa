@@ -2,10 +2,10 @@ package usecases
 
 import (
 	"context"
-	"log"
 
 	"github.com/lautarok/hexa/src/app/domain"
 	dto "github.com/lautarok/hexa/src/app/dtos"
+	"github.com/lautarok/hexa/src/app/errors"
 	"github.com/lautarok/hexa/src/app/ports"
 )
 
@@ -32,6 +32,7 @@ func NewSignupUsecase(deps *SignupUsecaseDeps) *SignupUsecase {
 type SignupUsecaseInput struct {
 	Name     string
 	Surname  string
+	Email    string
 	Username string
 	Password string
 }
@@ -44,13 +45,13 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 		})
 
 		if repoErr != nil {
-			log.Println("!!!!!!!!!!!!")
 			return repoErr
 		}
 
 		_, repoErr = usecase.credentialsRepository.CreateOne(ctx, &domain.Credential{
-			Username:     input.Username,
-			PasswordHash: input.Password,
+			Username: input.Username,
+			Password: input.Password,
+			Email:    input.Email,
 			User: &domain.User{
 				ID: insertedUser.ID,
 			},
@@ -64,10 +65,11 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 	})
 
 	if err != nil {
-		return nil, &domain.AppError{
-			Code:    "InternalError",
-			Message: "Internal error: " + err.Error(),
+		if usecase.persistenceAdapter.IsUniqueViolation(err) {
+			return nil, errors.NewAlreadyExistsError("Email or username already exists")
 		}
+
+		return nil, errors.NewInternalError(err)
 	}
 
 	return &dto.TokenOutputDto{
