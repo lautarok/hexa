@@ -4,12 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lautarok/hexa/src/app/domain"
 	"github.com/uptrace/bun"
 )
 
 type Role struct {
-	ID          string        `bun:"id,type:uuid,notnull,pk,default:gen_random_uuid()"`
+	ID          uuid.UUID     `bun:"id,type:uuid,notnull,pk,default:gen_random_uuid()"`
 	NameEn      string        `bun:"name_en,type:varchar(30)"`
 	NameEs      string        `bun:"name_es,type:varchar(30)"`
 	NameFr      string        `bun:"name_fr,type:varchar(30)"`
@@ -49,4 +50,30 @@ func (entity *Role) ToDomain() *domain.Role {
 	}
 
 	return role
+}
+
+func (entity *Role) FromDomain(domain *domain.Role) {
+	entity.ID = domain.ID
+	entity.NameEn = domain.NameEn
+	entity.NameEs = domain.NameEs
+	entity.NameFr = domain.NameFr
+	entity.NamePt = domain.NamePt
+	entity.CreatedAt = domain.CreatedAt
+	entity.UpdatedAt = domain.UpdatedAt
+
+	if domain.Users != nil {
+		for _, userDomain := range domain.Users {
+			var user User
+			user.FromDomain(userDomain)
+			entity.Users = append(entity.Users, &user)
+		}
+	}
+
+	if domain.Permissions != nil {
+		for _, permissionDomain := range domain.Permissions {
+			var permission Permission
+			permission.FromDomain(permissionDomain)
+			entity.Permissions = append(entity.Permissions, &permission)
+		}
+	}
 }

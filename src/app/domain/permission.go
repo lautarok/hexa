@@ -1,10 +1,14 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Permission struct {
-	ID        string `validate:"uuid"`
-	Alias     string `validate:"min=1,max=30"`
+	ID        uuid.UUID `validation:"uuid"`
+	Alias     string    `validation:"min=1,max=30"`
 	Roles     []*Role
 	CreatedAt time.Time
 	UpdatedAt time.Time

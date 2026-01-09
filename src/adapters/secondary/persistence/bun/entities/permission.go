@@ -4,12 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lautarok/hexa/src/app/domain"
 	"github.com/uptrace/bun"
 )
 
 type Permission struct {
-	ID        string    `bun:"id,type:uuid,default:gen_random_uuid(),notnull,pk"`
+	ID        uuid.UUID `bun:"id,type:uuid,default:gen_random_uuid(),notnull,pk"`
 	Alias     string    `bun:"alias,notnull"`
 	Roles     []*Role   `bun:"m2m:role_permissions,join:Permission=Role"`
 	CreatedAt time.Time `bun:"created_at,type:timestamp,default:current_timestamp,notnull"`
@@ -36,4 +37,19 @@ func (entity *Permission) ToDomain() *domain.Permission {
 	}
 
 	return permission
+}
+
+func (entity *Permission) FromDomain(domain *domain.Permission) {
+	entity.ID = domain.ID
+	entity.Alias = domain.Alias
+	entity.CreatedAt = domain.CreatedAt
+	entity.UpdatedAt = domain.UpdatedAt
+
+	if domain.Roles != nil {
+		for _, roleDomain := range domain.Roles {
+			var role Role
+			role.FromDomain(roleDomain)
+			entity.Roles = append(entity.Roles, &role)
+		}
+	}
 }
