@@ -78,8 +78,8 @@ Archivos de la documentación de Hexa
 ### Diagrama de arquitectura
 ![Hexa SVG architecture diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Nuevo%20diagrama%20de%20arquitectura.png?raw=true)
 
-### Diagrama de arquitectura (obsoleto)
-![Hexa SVG old architecture diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Diagrama%20de%20arquitectura.svg?raw=true)
-
 ### Diagrama de Entidad-Relación
 ![Hexa SVG entity-relation diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Diagrama%20Entidad-Relación.svg?raw=true)
+
+### Diagrama de arquitectura (obsoleto)
+![Hexa SVG old architecture diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Diagrama%20de%20arquitectura.svg?raw=true)
