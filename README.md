@@ -25,8 +25,8 @@ La aplicación sigue un enfoque modular:
 
 - **Application Layer**
   - **Domain**: Entidades y lógica de negocio.
-  - **Modules**: Servicios y casos de uso, controladores, DTOs, repositorios y puertos.
-  - **Ports**: Repository, Env, Realtime.
+  - **Usecases**: Casos de uso con sus comandos o entradas.
+  - **Ports**: HTTP, Repository, Env, Realtime.
 
 - **Infrastructure**
   - Adaptadores para HTTP, repositorios y servicios externos.
