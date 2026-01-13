@@ -75,7 +75,7 @@ Archivos de la documentación de Hexa
 ### Historias de usuario
 [Descargar historias de usuario (PDF)](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Historias%20de%20usuario.pdf?raw=true)
 
-### Diagrama de arquitectura (obsoleto)
+### Diagrama de arquitectura
 ![Hexa SVG architecture diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Nuevo%20diagrama%20de%20arquitectura.png?raw=true)
 
 ### Diagrama de arquitectura (obsoleto)
