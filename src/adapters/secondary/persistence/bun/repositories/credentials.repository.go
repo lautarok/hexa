@@ -2,10 +2,13 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
 	"github.com/lautarok/hexa/src/application/domain"
+	bunInfra "github.com/uptrace/bun"
 )
 
 type CredentialsRepository struct {
@@ -30,11 +33,19 @@ func (repository *CredentialsRepository) FindByUsernameOrEmail(
 
 	var credential entities.Credential
 	err := db.NewSelect().
+		Column("username", "email", "password").
 		Model(&credential).
-		Where("username = ? OR email = ?", usernameOrEmail).
+		Where("username = ?", usernameOrEmail).
+		WhereOr("email = ?", usernameOrEmail).
+		Relation("User", func(sq *bunInfra.SelectQuery) *bunInfra.SelectQuery {
+			return sq.Column("id")
+		}).
 		Scan(ctx)
 
 	if err != nil {
+		if errors.Is(sql.ErrNoRows, err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

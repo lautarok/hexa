@@ -24,7 +24,12 @@ func NewValidatorAdapter() ports.ValidationPort {
 			hasSpecial = regexp.MustCompile(`[@$!%*?&]`).MatchString(password)
 		)
 
-		return hasUpper && hasLower && hasNumber && hasSpecial
+		return hasUpper &&
+			hasLower &&
+			hasNumber &&
+			hasSpecial &&
+			len(password) >= 6 &&
+			len(password) <= 20
 	})
 
 	v.RegisterValidation("username", func(field validator.FieldLevel) bool {
@@ -32,7 +37,9 @@ func NewValidatorAdapter() ports.ValidationPort {
 		regExp := regexp.MustCompile(
 			`^[a-zA-Z0-9._]*$`,
 		)
-		return regExp.MatchString(username)
+		return regExp.MatchString(username) &&
+			len(username) >= 5 &&
+			len(username) <= 25
 	})
 
 	return &ValidatorAdapter{

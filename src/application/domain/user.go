@@ -20,4 +20,5 @@ type User struct {
 type IUsersRepository interface {
 	FindMany(ctx context.Context, skip int, limit int) ([]*User, error)
 	CreateOne(ctx context.Context, domainUser *User) (*User, error)
+	FindOneByID(ctx context.Context, id uuid.UUID) (*User, error)
 }

@@ -12,7 +12,7 @@ import (
 type Permission struct {
 	ID        uuid.UUID `bun:"id,type:uuid,default:gen_random_uuid(),notnull,nullzero,pk"`
 	Alias     string    `bun:"alias,notnull,nullzero"`
-	Roles     []*Role   `bun:"m2m:role_permissions,join:Permission=Role"`
+	Roles     []*Role   `bun:"m2m:role_permissions"`
 	CreatedAt time.Time `bun:"created_at,type:timestamp,default:current_timestamp,notnull,nullzero"`
 	UpdatedAt time.Time `bun:"updated_at,type:timestamp,default:current_timestamp,notnull,nullzero"`
 }

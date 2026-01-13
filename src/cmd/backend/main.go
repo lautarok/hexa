@@ -7,6 +7,7 @@ import (
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/controllers"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/middlewares"
+	"github.com/lautarok/hexa/src/adapters/secondary/identity/jwt"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/repositories"
 	"github.com/lautarok/hexa/src/adapters/secondary/validation/validator"
@@ -33,48 +34,87 @@ func main() {
 
 	dsn, err := envAdapter.GetStr("POSTGRES_DSN")
 	if err != nil {
-		log.Fatalf("Error getting POSTGRES_DSN environment variable: %v", err)
+		log.Fatal(err)
 	}
 
 	persistenceAdapter := bun.NewBunAdapter(&bun.BunAdapterDeps{
 		DSN: dsn,
 	})
 
-	validation := validator.NewValidatorAdapter()
+	validationAdapter := validator.NewValidatorAdapter()
+
+	jwtSecret, err := envAdapter.GetStr("JWT_SECRET")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	identityAdapter := jwt.NewJWTAdapter(&jwt.JWTAdapterDeps{
+		Secret: jwtSecret,
+	})
 
 	usersRepository := repositories.NewUsersRepository(&repositories.UsersRepositoryDeps{
 		DBAdapter: persistenceAdapter,
 	})
-	getUsersUsecase := usecases.NewGetUsersUsecase(&usecases.GetUsersUsecaseDeps{
-		UsersRepository: usersRepository,
-	})
-	usersController := controllers.NewUsersController(&controllers.UsersControllerDeps{
-		GetUsersUsecase: getUsersUsecase,
-		Validation:      validation,
-	})
-
 	credentialsRepository := repositories.NewCredentialsRepository(&repositories.CredentialsRepositoryDeps{
 		DBAdapter: persistenceAdapter,
+	})
+	rolesRepository := repositories.NewRolesRepository(&repositories.RolesRepositoryDeps{
+		DBAdapter: persistenceAdapter,
+	})
+
+	getUsersUsecase := usecases.NewGetUsersUsecase(&usecases.GetUsersUsecaseDeps{
+		UsersRepository: usersRepository,
 	})
 	signupUsecase := usecases.NewSignupUsecase(&usecases.SignupUsecaseDeps{
 		CredentialsRepository: credentialsRepository,
 		UsersRepository:       usersRepository,
+		RolesRepository:       rolesRepository,
 		PersistenceAdapter:    persistenceAdapter,
+		IdentityAdapter:       identityAdapter,
+	})
+	loginUsecase := usecases.NewLoginUsecase(&usecases.LoginUsecaseDeps{
+		CredentialsRepository: credentialsRepository,
+		IdentityAdapter:       identityAdapter,
+	})
+	getUserFromTokenUsecase := usecases.NewGetUserFromTokenUsecase(&usecases.GetUserFromTokenUsecaseDeps{
+		UsersRepository:       usersRepository,
+		CredentialsRepository: credentialsRepository,
+		IdentityAdapter:       identityAdapter,
+	})
+	getRolesUsecase := usecases.NewGetRolesUsecase(&usecases.GetRolesUsecaseDeps{
+		RolesRepository: rolesRepository,
+	})
+
+	authMiddleware := middlewares.NewAuthMiddleware(&middlewares.AuthMiddlewareDeps{
+		GetUserFromTokenUsecase: getUserFromTokenUsecase,
+	})
+
+	usersController := controllers.NewUsersController(&controllers.UsersControllerDeps{
+		GetUsersUsecase: getUsersUsecase,
+		Validation:      validationAdapter,
 	})
 	authController := controllers.NewAuthController(&controllers.AuthControllerDeps{
-		SignupUsecase: signupUsecase,
-		Validation:    validation,
+		SignupUsecase:  signupUsecase,
+		LoginUsecase:   loginUsecase,
+		Validation:     validationAdapter,
+		AuthMiddleware: authMiddleware,
+	})
+	rolesController := controllers.NewRolesController(&controllers.RolesControllerDeps{
+		GetRolesUsecase: getRolesUsecase,
+		AuthMiddleware:  authMiddleware,
+		Validation:      validationAdapter,
 	})
 
 	httpAdapter.RegisterControllers(
 		healthController,
 		usersController,
 		authController,
+		rolesController,
 	)
 
 	httpPort, err := envAdapter.GetStr("HTTP_PORT")
 	if err != nil {
-		log.Fatalf("Error getting HTTP_PORT environment variable: %v", err)
+		log.Fatal(err)
 	}
 
 	httpAdapter.Start(":" + httpPort)

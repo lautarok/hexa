@@ -2,7 +2,9 @@ package repositories
 
 import (
 	"context"
+	"log"
 
+	"github.com/google/uuid"
 	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
 	"github.com/lautarok/hexa/src/application/domain"
@@ -41,13 +43,9 @@ func (repository *UsersRepository) FindMany(ctx context.Context, skip int, limit
 		return nil, err
 	}
 
-	var domainUserList []*domain.User
+	domainUserList := []*domain.User{}
 	for _, user := range userList {
 		domainUserList = append(domainUserList, user.ToDomain())
-	}
-
-	if domainUserList == nil {
-		return []*domain.User{}, nil
 	}
 
 	return domainUserList, nil
@@ -64,6 +62,24 @@ func (repository *UsersRepository) CreateOne(ctx context.Context, domainUser *do
 		Returning("*").
 		Model(&user).
 		Exec(ctx)
+
+	return user.ToDomain(), err
+}
+
+func (respository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+	db := respository.dbAdapter.GetDB(ctx)
+
+	var user entities.User
+
+	err := db.NewSelect().
+		Model(&user).
+		Where(`"user"."id" = ?`, id).
+		Relation("Credential").
+		Relation("Role").
+		Relation("Role.Permissions").
+		Scan(ctx)
+
+	log.Println(user.Role)
 
 	return user.ToDomain(), err
 }

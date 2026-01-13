@@ -2,13 +2,12 @@ package controllers
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
 	"github.com/lautarok/hexa/src/application/errors"
 	"github.com/lautarok/hexa/src/application/ports"
 	"github.com/lautarok/hexa/src/application/usecases"
-	"github.com/lautarok/hexa/src/dtos"
 )
 
 type UsersController struct {
@@ -38,28 +37,21 @@ func (controller *UsersController) Register(router *gin.RouterGroup) {
 }
 
 func (controller *UsersController) GetUserList(ctx *gin.Context) {
-	var paginationDto dtos.PaginationInput
-	err := ctx.ShouldBindQuery(&paginationDto)
-	if err != nil || (paginationDto.Page == 0 && paginationDto.Limit == 0) {
-		paginationDto = dtos.PaginationInput{
-			Page:  1,
-			Limit: 15,
-		}
-	} else if err = controller.validation.Struct(paginationDto); err != nil {
+	var paginationDto dtos.PaginationInputDto
+	ctx.ShouldBindQuery(&paginationDto)
+	if err := paginationDto.Validate(controller.validation); err != nil {
 		ctx.Error(
-			errors.NewInvalidInputError(strings.Split(err.Error(), "\n")[0]),
+			errors.NewInvalidInputError(err.Error()),
 		)
 		return
 	}
 
-	users, err := controller.getUsersUsecase.GetUserList(ctx, &usecases.GetUserListInput{
+	users, appErr := controller.getUsersUsecase.GetUserList(ctx, &usecases.GetUsersInput{
 		Page:  paginationDto.Page,
 		Limit: paginationDto.Limit,
 	})
-	if err != nil {
-		ctx.Error(
-			errors.NewInternalError(err),
-		)
+	if appErr != nil {
+		ctx.Error(appErr)
 		return
 	}
 
@@ -80,8 +72,10 @@ func (controller *UsersController) GetUserList(ctx *gin.Context) {
 	}
 
 	output := dtos.UserListOutputDto{
-		Page:  paginationDto.Page,
-		Limit: paginationDto.Limit,
+		PaginationOutputDto: &dtos.PaginationOutputDto{
+			Page:  paginationDto.Page,
+			Limit: paginationDto.Limit,
+		},
 		Users: usersDto,
 	}
 

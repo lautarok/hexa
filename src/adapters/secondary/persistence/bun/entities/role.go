@@ -16,7 +16,7 @@ type Role struct {
 	NameFr      string        `bun:"name_fr,type:varchar(30)"`
 	NamePt      string        `bun:"name_pt,type:varchar(30)"`
 	Users       []*User       `bun:"rel:has-many,join:id=role_id"`
-	Permissions []*Permission `bun:"m2m:role_permissions,join:Role=Permission"`
+	Permissions []*Permission `bun:"m2m:role_permissions"`
 	CreatedAt   time.Time     `bun:"created_at,type:timestamp,default:current_timestamp,notnull,nullzero"`
 	UpdatedAt   time.Time     `bun:"updated_at,type:timestamp,default:current_timestamp,notnull,nullzero"`
 }

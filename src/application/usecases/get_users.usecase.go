@@ -2,9 +2,9 @@ package usecases
 
 import (
 	"context"
-	"log"
 
 	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/application/errors"
 )
 
 type GetUsersUsecase struct {
@@ -21,22 +21,22 @@ func NewGetUsersUsecase(deps *GetUsersUsecaseDeps) *GetUsersUsecase {
 	}
 }
 
-type GetUserListInput struct {
+type GetUsersInput struct {
 	Page  int
 	Limit int
 }
 
 func (service *GetUsersUsecase) GetUserList(
 	ctx context.Context,
-	input *GetUserListInput,
-) ([]*domain.User, error) {
+	input *GetUsersInput,
+) ([]*domain.User, *domain.AppError) {
 	users, err := service.usersRepository.FindMany(
 		ctx,
 		input.Limit*(input.Page-1),
 		input.Limit,
 	)
 	if err != nil {
-		log.Fatal(err)
+		return nil, errors.NewInternalError(err)
 	}
 
 	return users, nil

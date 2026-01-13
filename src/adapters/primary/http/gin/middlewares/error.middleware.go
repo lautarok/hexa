@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
 	"github.com/lautarok/hexa/src/application/domain"
-	"github.com/lautarok/hexa/src/dtos"
 )
 
 type ErrorMiddleware struct{}
@@ -41,12 +41,14 @@ func (middleware *ErrorMiddleware) HandleErrors(ctx *gin.Context) {
 
 		statusCode := 500
 		switch appError.Code {
-		case "NotFound":
+		case "ResourceNotFound":
 			statusCode = 404
 		case "InvalidInput":
 			statusCode = 400
 		case "AlreadyExists":
 			statusCode = 409
+		case "Unauthorized":
+			statusCode = 401
 		case "InternalError":
 			log.Printf(
 				"%s [%s] INTERNAL ERROR: %s",
@@ -54,6 +56,8 @@ func (middleware *ErrorMiddleware) HandleErrors(ctx *gin.Context) {
 				ctx.Request.Method,
 				appError.Message,
 			)
+			sendInternalError(ctx)
+			return
 		}
 
 		ctx.JSON(statusCode, &dtos.AppErrorDto{
