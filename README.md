@@ -25,8 +25,8 @@ La aplicación sigue un enfoque modular:
 
 - **Application Layer**
   - **Domain**: Entidades y lógica de negocio.
-  - **Modules**: Servicios y casos de uso, controladores, DTOs, repositorios y puertos.
-  - **Ports**: Repository, Env, Realtime.
+  - **Usecases**: Casos de uso con sus comandos o entradas.
+  - **Ports**: HTTP, Repository, Env, Realtime.
 
 - **Infrastructure**
   - Adaptadores para HTTP, repositorios y servicios externos.
@@ -75,11 +75,11 @@ Archivos de la documentación de Hexa
 ### Historias de usuario
 [Descargar historias de usuario (PDF)](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Historias%20de%20usuario.pdf?raw=true)
 
-### Diagrama de arquitectura (obsoleto)
+### Diagrama de arquitectura
 ![Hexa SVG architecture diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Nuevo%20diagrama%20de%20arquitectura.png?raw=true)
-
-### Diagrama de arquitectura (obsoleto)
-![Hexa SVG old architecture diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Diagrama%20de%20arquitectura.svg?raw=true)
 
 ### Diagrama de Entidad-Relación
 ![Hexa SVG entity-relation diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Diagrama%20Entidad-Relación.svg?raw=true)
+
+### Diagrama de arquitectura (obsoleto)
+![Hexa SVG old architecture diagram](https://github.com/lautarok/hexa/blob/backend/assets/Hexa%20-%20Diagrama%20de%20arquitectura.svg?raw=true)
