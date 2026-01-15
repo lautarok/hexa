@@ -7,11 +7,12 @@ import (
 )
 
 type RoleOutputDto struct {
-	ID        uuid.UUID `json:"id"`
-	NameEn    string    `json:"nameEn"`
-	NameEs    string    `json:"nameEs"`
-	NameFr    string    `json:"nameFr"`
-	NamePt    string    `json:"namePt"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID          uuid.UUID              `json:"id"`
+	NameEn      string                 `json:"nameEn"`
+	NameEs      string                 `json:"nameEs"`
+	NameFr      string                 `json:"nameFr"`
+	NamePt      string                 `json:"namePt"`
+	Permissions []*PermissionOutputDto `json:"permissions"`
+	CreatedAt   time.Time              `json:"createdAt"`
+	UpdatedAt   time.Time              `json:"updatedAt"`
 }

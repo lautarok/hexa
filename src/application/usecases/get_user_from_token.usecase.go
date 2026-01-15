@@ -28,7 +28,7 @@ func NewGetUserFromTokenUsecase(deps *GetUserFromTokenUsecaseDeps) *GetUserFromT
 	}
 }
 
-type GetUserFromTokenInput struct {
+type GetUserFromTokenUsecaseInput struct {
 	Token string
 }
 
@@ -36,7 +36,7 @@ type GetUserFromTokenOutput struct {
 	User *domain.User
 }
 
-func (usecase *GetUserFromTokenUsecase) GetUserFromToken(ctx context.Context, input *GetUserFromTokenInput) (*GetUserFromTokenOutput, *domain.AppError) {
+func (usecase *GetUserFromTokenUsecase) GetUserFromToken(ctx context.Context, input *GetUserFromTokenUsecaseInput) (*GetUserFromTokenOutput, *domain.AppError) {
 	payload, err := usecase.IdentityAdapter.ParseToken(input.Token)
 	if err != nil {
 		return nil, errors.NewUnauthorizedError("Invalid token")

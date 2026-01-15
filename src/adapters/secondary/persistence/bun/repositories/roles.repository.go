@@ -2,10 +2,12 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
 
 	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
 	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/uptrace/bun"
 )
 
 type RolesRepository struct {
@@ -40,9 +42,10 @@ func (repository *RolesRepository) FindMany(ctx context.Context, skip int, limit
 
 	var entityRoleList []*entities.Role
 	err := db.NewSelect().
+		Model(&entityRoleList).
 		Limit(limit).
 		Offset(skip).
-		Model(&entityRoleList).
+		Relation("Permissions").
 		Scan(ctx)
 	if err != nil {
 		return nil, err
@@ -55,4 +58,56 @@ func (repository *RolesRepository) FindMany(ctx context.Context, skip int, limit
 	}
 
 	return roleList, err
+}
+
+func (repository *RolesRepository) CreateOne(ctx context.Context, domainRole *domain.Role) (*domain.Role, error) {
+	db := repository.dbAdapter.GetDB(ctx)
+
+	var entityRole entities.Role
+	entityRole.FromDomain(domainRole)
+
+	rolePermissions := []*entities.RolePermission{}
+
+	err := db.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) error {
+		_, err := tx.NewInsert().
+			Model(&entityRole).
+			Returning("*").
+			Exec(ctx)
+		if err != nil {
+			return err
+		}
+
+		for _, permission := range domainRole.Permissions {
+			rolePermissions = append(rolePermissions, &entities.RolePermission{
+				RoleID:       entityRole.ID,
+				PermissionID: permission.ID,
+			})
+		}
+
+		_, err = tx.NewInsert().
+			Model(&rolePermissions).
+			Returning("*").
+			Exec(ctx)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var finalEntityRole entities.Role
+
+	err = db.NewSelect().
+		Model(&finalEntityRole).
+		Relation("Permissions").
+		Where("id = ?", entityRole.ID).
+		Scan(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return entityRole.ToDomain(), nil
 }

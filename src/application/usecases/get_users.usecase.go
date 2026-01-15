@@ -21,14 +21,14 @@ func NewGetUsersUsecase(deps *GetUsersUsecaseDeps) *GetUsersUsecase {
 	}
 }
 
-type GetUsersInput struct {
+type GetUsersUsecaseInput struct {
 	Page  int
 	Limit int
 }
 
 func (service *GetUsersUsecase) GetUserList(
 	ctx context.Context,
-	input *GetUsersInput,
+	input *GetUsersUsecaseInput,
 ) ([]*domain.User, *domain.AppError) {
 	users, err := service.usersRepository.FindMany(
 		ctx,

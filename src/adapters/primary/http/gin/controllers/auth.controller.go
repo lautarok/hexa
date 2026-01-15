@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/middlewares"
 	"github.com/lautarok/hexa/src/application/domain"
@@ -58,20 +57,12 @@ func (controller *AuthController) Signup(ctx *gin.Context) {
 		return
 	}
 
-	uuid, err := uuid.Parse(reqBody.RoleID)
-	if err != nil {
-		ctx.Error(
-			errors.NewInternalError(err),
-		)
-	}
-
 	usecaseInput := &usecases.SignupUsecaseInput{
 		Name:     reqBody.Name,
 		Surname:  reqBody.Surname,
 		Email:    reqBody.Email,
 		Username: reqBody.Username,
 		Password: reqBody.Password,
-		RoleID:   uuid,
 	}
 
 	token, appErr := controller.signupUsecase.Signup(ctx, usecaseInput)

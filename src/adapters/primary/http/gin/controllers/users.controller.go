@@ -46,7 +46,7 @@ func (controller *UsersController) GetUserList(ctx *gin.Context) {
 		return
 	}
 
-	users, appErr := controller.getUsersUsecase.GetUserList(ctx, &usecases.GetUsersInput{
+	users, appErr := controller.getUsersUsecase.GetUserList(ctx, &usecases.GetUsersUsecaseInput{
 		Page:  paginationDto.Page,
 		Limit: paginationDto.Limit,
 	})

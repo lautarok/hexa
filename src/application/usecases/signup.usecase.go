@@ -41,7 +41,6 @@ type SignupUsecaseInput struct {
 	Email    string
 	Username string
 	Password string
-	RoleID   uuid.UUID
 }
 
 type SignupUsecaseOutput struct {
@@ -55,11 +54,16 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 	var repoErr error
 
 	err := usecase.persistenceAdapter.Transaction(ctx, func(ctx context.Context) error {
+		roleId, err := uuid.Parse("a1104eb0-26e1-40bf-b86b-132dd8312e06")
+		if err != nil {
+			return err
+		}
+
 		insertedUser, repoErr = usecase.usersRepository.CreateOne(ctx, &domain.User{
 			Name:    input.Name,
 			Surname: input.Surname,
 			Role: &domain.Role{
-				ID: input.RoleID,
+				ID: roleId,
 			},
 		})
 

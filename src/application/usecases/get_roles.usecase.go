@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"context"
-	"log"
 
 	"github.com/lautarok/hexa/src/application/domain"
 	"github.com/lautarok/hexa/src/application/errors"
@@ -22,12 +21,12 @@ func NewGetRolesUsecase(deps *GetRolesUsecaseDeps) *GetRolesUsecase {
 	}
 }
 
-type GetRolesInput struct {
+type GetRolesUsecaseInput struct {
 	Page  int
 	Limit int
 }
 
-func (usecase *GetRolesUsecase) GetRoleList(ctx context.Context, input *GetRolesInput) ([]*domain.Role, error) {
+func (usecase *GetRolesUsecase) GetRoleList(ctx context.Context, input *GetRolesUsecaseInput) ([]*domain.Role, error) {
 	roleList, err := usecase.rolesRepository.FindMany(
 		ctx,
 		input.Limit*(input.Page-1),
@@ -35,10 +34,6 @@ func (usecase *GetRolesUsecase) GetRoleList(ctx context.Context, input *GetRoles
 	)
 
 	if err != nil {
-		log.Println("111111111111111")
-		log.Println(input)
-		log.Println(usecase.rolesRepository)
-		log.Println("111111111111111")
 		return nil, errors.NewInternalError(err)
 	}
 

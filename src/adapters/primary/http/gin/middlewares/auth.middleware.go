@@ -34,7 +34,7 @@ func (middleware *AuthMiddleware) HandleAuth(permissionAlias ...string) gin.Hand
 			return
 		}
 
-		userFromToken, appError := middleware.getUserFromTokenUsecase.GetUserFromToken(ctx, &usecases.GetUserFromTokenInput{
+		userFromToken, appError := middleware.getUserFromTokenUsecase.GetUserFromToken(ctx, &usecases.GetUserFromTokenUsecaseInput{
 			Token: token,
 		})
 

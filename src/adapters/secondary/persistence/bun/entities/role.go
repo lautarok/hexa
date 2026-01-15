@@ -11,12 +11,12 @@ import (
 
 type Role struct {
 	ID          uuid.UUID     `bun:"id,type:uuid,notnull,nullzero,pk,default:gen_random_uuid()"`
-	NameEn      string        `bun:"name_en,type:varchar(30)"`
-	NameEs      string        `bun:"name_es,type:varchar(30)"`
-	NameFr      string        `bun:"name_fr,type:varchar(30)"`
-	NamePt      string        `bun:"name_pt,type:varchar(30)"`
+	NameEn      string        `bun:"name_en,type:varchar(30),unique,nullzero"`
+	NameEs      string        `bun:"name_es,type:varchar(30),unique,nullzero"`
+	NameFr      string        `bun:"name_fr,type:varchar(30),unique,nullzero"`
+	NamePt      string        `bun:"name_pt,type:varchar(30),unique,nullzero"`
 	Users       []*User       `bun:"rel:has-many,join:id=role_id"`
-	Permissions []*Permission `bun:"m2m:role_permissions"`
+	Permissions []*Permission `bun:"m2m:role_permissions,join:Role=Permission"`
 	CreatedAt   time.Time     `bun:"created_at,type:timestamp,default:current_timestamp,notnull,nullzero"`
 	UpdatedAt   time.Time     `bun:"updated_at,type:timestamp,default:current_timestamp,notnull,nullzero"`
 }

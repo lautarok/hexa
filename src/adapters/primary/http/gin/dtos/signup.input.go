@@ -9,7 +9,6 @@ type SignupInputDto struct {
 	Email          string `validate:"required,email" json:"email"`
 	Password       string `validate:"required,securepassword" json:"password"`
 	RepeatPassword string `validate:"required,securepassword,eqfield=Password" json:"repeatPassword"`
-	RoleID         string `validate:"required,uuid" json:"roleId"`
 }
 
 func (input *SignupInputDto) Validate(validationAdapter ports.ValidationPort) error {

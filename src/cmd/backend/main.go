@@ -61,6 +61,9 @@ func main() {
 	rolesRepository := repositories.NewRolesRepository(&repositories.RolesRepositoryDeps{
 		DBAdapter: persistenceAdapter,
 	})
+	permissionsRepository := repositories.NewPermissionsRepository(&repositories.PermissionsRepositoryDeps{
+		DBAdapter: persistenceAdapter,
+	})
 
 	getUsersUsecase := usecases.NewGetUsersUsecase(&usecases.GetUsersUsecaseDeps{
 		UsersRepository: usersRepository,
@@ -84,6 +87,14 @@ func main() {
 	getRolesUsecase := usecases.NewGetRolesUsecase(&usecases.GetRolesUsecaseDeps{
 		RolesRepository: rolesRepository,
 	})
+	createRolesUsecase := usecases.NewCreateRoleUsecase(&usecases.CreateRoleUsecaseDeps{
+		RolesRepository:       rolesRepository,
+		PermissionsRepository: permissionsRepository,
+		PersistenceAdapter:    persistenceAdapter,
+	})
+	getPermissionsUsecase := usecases.NewGetPermissionsUsecase(&usecases.GetPermissionsUsecaseDeps{
+		PermissionsRepository: permissionsRepository,
+	})
 
 	authMiddleware := middlewares.NewAuthMiddleware(&middlewares.AuthMiddlewareDeps{
 		GetUserFromTokenUsecase: getUserFromTokenUsecase,
@@ -100,9 +111,14 @@ func main() {
 		AuthMiddleware: authMiddleware,
 	})
 	rolesController := controllers.NewRolesController(&controllers.RolesControllerDeps{
-		GetRolesUsecase: getRolesUsecase,
-		AuthMiddleware:  authMiddleware,
-		Validation:      validationAdapter,
+		GetRolesUsecase:   getRolesUsecase,
+		CreateRoleUsecase: createRolesUsecase,
+		AuthMiddleware:    authMiddleware,
+		Validation:        validationAdapter,
+	})
+	permissionsController := controllers.NewPermissionsController(&controllers.PermissionsControllerDeps{
+		GetPermissionsUsecase: getPermissionsUsecase,
+		Validation:            validationAdapter,
 	})
 
 	httpAdapter.RegisterControllers(
@@ -110,6 +126,7 @@ func main() {
 		usersController,
 		authController,
 		rolesController,
+		permissionsController,
 	)
 
 	httpPort, err := envAdapter.GetStr("HTTP_PORT")
