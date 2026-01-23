@@ -1,6 +1,9 @@
 package dtos
 
-import "github.com/lautarok/hexa/src/application/ports"
+import (
+	"github.com/lautarok/hexa/src/application/ports"
+	rolesCommand "github.com/lautarok/hexa/src/application/usecases/roles/command"
+)
 
 type PermissionAliasInputDto struct {
 	Alias string `json:"alias" validate:"required,min=2,max=150"`
@@ -8,4 +11,10 @@ type PermissionAliasInputDto struct {
 
 func (dto *PermissionAliasInputDto) Validate(validation ports.ValidationPort) error {
 	return validation.Struct(dto)
+}
+
+func (dto *PermissionAliasInputDto) ToUsecaseInput() *rolesCommand.CreateRoleUsecaseInputPermission {
+	return &rolesCommand.CreateRoleUsecaseInputPermission{
+		Alias: dto.Alias,
+	}
 }

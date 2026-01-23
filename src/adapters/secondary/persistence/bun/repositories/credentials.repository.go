@@ -38,7 +38,9 @@ func (repository *CredentialsRepository) FindByUsernameOrEmail(
 		Where("username = ?", usernameOrEmail).
 		WhereOr("email = ?", usernameOrEmail).
 		Relation("User", func(sq *bunInfra.SelectQuery) *bunInfra.SelectQuery {
-			return sq.Column("id")
+			return sq.Relation("Role", func(sq *bunInfra.SelectQuery) *bunInfra.SelectQuery {
+				return sq.Relation("Permissions")
+			})
 		}).
 		Scan(ctx)
 
@@ -71,11 +73,11 @@ func (repository *CredentialsRepository) CreateOne(ctx context.Context, domainCr
 	var credential entities.Credential
 	credential.FromDomain(domainCredential)
 
-	_, err := db.
+	err := db.
 		NewInsert().
 		Returning("*").
 		Model(&credential).
-		Exec(ctx)
+		Scan(ctx)
 
 	return credential.ToDomain(), err
 }

@@ -1,4 +1,4 @@
-package usecases
+package command
 
 import (
 	"context"
@@ -46,6 +46,7 @@ type SignupUsecaseInput struct {
 type SignupUsecaseOutput struct {
 	Token string
 	Exp   int64
+	User  *domain.User
 }
 
 func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseInput) (*SignupUsecaseOutput, *domain.AppError) {
@@ -54,7 +55,7 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 	var repoErr error
 
 	err := usecase.persistenceAdapter.Transaction(ctx, func(ctx context.Context) error {
-		roleId, err := uuid.Parse("a1104eb0-26e1-40bf-b86b-132dd8312e06")
+		roleId, err := uuid.Parse("11111111-1111-1111-1111-111111111111")
 		if err != nil {
 			return err
 		}
@@ -95,6 +96,11 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 		return nil, errors.NewInternalError(err)
 	}
 
+	user, err := usecase.usersRepository.FindOneByID(ctx, insertedUser.ID)
+	if err != nil {
+		return nil, errors.NewInternalError(err)
+	}
+
 	token, exp, err := usecase.identityAdapter.NewToken(&domain.Identity{
 		SubUserID: insertedUser.ID,
 		UserID:    insertedUser.ID,
@@ -109,5 +115,6 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 	return &SignupUsecaseOutput{
 		Token: token,
 		Exp:   exp,
+		User:  user,
 	}, nil
 }

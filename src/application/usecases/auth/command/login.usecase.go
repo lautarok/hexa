@@ -1,4 +1,4 @@
-package usecases
+package command
 
 import (
 	"context"
@@ -33,6 +33,7 @@ type LoginUsecaseInput struct {
 type LoginUsecaseOutput struct {
 	Token string
 	Exp   int64
+	User  *domain.User
 }
 
 func (usecase *LoginUsecase) Login(ctx context.Context, input *LoginUsecaseInput) (*LoginUsecaseOutput, *domain.AppError) {
@@ -55,5 +56,6 @@ func (usecase *LoginUsecase) Login(ctx context.Context, input *LoginUsecaseInput
 	return &LoginUsecaseOutput{
 		Token: token,
 		Exp:   exp,
+		User:  matchCredential.User,
 	}, nil
 }

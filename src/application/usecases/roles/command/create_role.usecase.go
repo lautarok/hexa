@@ -1,4 +1,4 @@
-package usecases
+package command
 
 import (
 	"context"
@@ -41,11 +41,7 @@ type CreateRoleUsecaseInput struct {
 	Permissions []*CreateRoleUsecaseInputPermission
 }
 
-type CreateRoleUsecaseOutput struct {
-	Role *domain.Role
-}
-
-func (usecase *CreateRoleUsecase) CreateRole(ctx context.Context, input *CreateRoleUsecaseInput) (*CreateRoleUsecaseOutput, *domain.AppError) {
+func (usecase *CreateRoleUsecase) CreateRole(ctx context.Context, input *CreateRoleUsecaseInput) (*domain.Role, *domain.AppError) {
 	var role *domain.Role
 	var repoErr error
 	err := usecase.persistenceAdapter.Transaction(ctx, func(ctx context.Context) error {
@@ -86,7 +82,5 @@ func (usecase *CreateRoleUsecase) CreateRole(ctx context.Context, input *CreateR
 		}
 	}
 
-	return &CreateRoleUsecaseOutput{
-		Role: role,
-	}, nil
+	return role, nil
 }

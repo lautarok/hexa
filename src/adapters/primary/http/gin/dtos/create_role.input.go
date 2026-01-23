@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/lautarok/hexa/src/application/ports"
+	rolesCommand "github.com/lautarok/hexa/src/application/usecases/roles/command"
 )
 
 type CreateRoleInputDto struct {
@@ -24,4 +25,19 @@ func (dto *CreateRoleInputDto) Validate(validation ports.ValidationPort) error {
 	}
 
 	return validation.Struct(dto)
+}
+
+func (dto *CreateRoleInputDto) ToUsecaseInput() *rolesCommand.CreateRoleUsecaseInput {
+	permissions := []*rolesCommand.CreateRoleUsecaseInputPermission{}
+	for _, permission := range dto.Permissions {
+		permissions = append(permissions, permission.ToUsecaseInput())
+	}
+
+	return &rolesCommand.CreateRoleUsecaseInput{
+		NameEn:      dto.NameEn,
+		NameEs:      dto.NameEs,
+		NameFr:      dto.NameFr,
+		NamePt:      dto.NamePt,
+		Permissions: permissions,
+	}
 }

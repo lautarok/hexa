@@ -11,6 +11,6 @@ type SignupInputDto struct {
 	RepeatPassword string `validate:"required,securepassword,eqfield=Password" json:"repeatPassword"`
 }
 
-func (input *SignupInputDto) Validate(validationAdapter ports.ValidationPort) error {
-	return validationAdapter.Struct(input)
+func (dto *SignupInputDto) Validate(validationAdapter ports.ValidationPort) error {
+	return validationAdapter.Struct(dto)
 }

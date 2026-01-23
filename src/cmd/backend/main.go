@@ -3,15 +3,20 @@ package main
 import (
 	"log"
 
-	"github.com/lautarok/hexa/src/adapters/config"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/controllers"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/middlewares"
+	"github.com/lautarok/hexa/src/adapters/secondary/config"
 	"github.com/lautarok/hexa/src/adapters/secondary/identity/jwt"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/repositories"
 	"github.com/lautarok/hexa/src/adapters/secondary/validation/validator"
-	"github.com/lautarok/hexa/src/application/usecases"
+	authCommand "github.com/lautarok/hexa/src/application/usecases/auth/command"
+	authQuery "github.com/lautarok/hexa/src/application/usecases/auth/query"
+	permimssionsQuery "github.com/lautarok/hexa/src/application/usecases/permissions/query"
+	rolesCommand "github.com/lautarok/hexa/src/application/usecases/roles/command"
+	rolesQuery "github.com/lautarok/hexa/src/application/usecases/roles/query"
+	usersQuery "github.com/lautarok/hexa/src/application/usecases/users/query"
 )
 
 func main() {
@@ -65,34 +70,34 @@ func main() {
 		DBAdapter: persistenceAdapter,
 	})
 
-	getUsersUsecase := usecases.NewGetUsersUsecase(&usecases.GetUsersUsecaseDeps{
+	getUsersUsecase := usersQuery.NewGetUsersUsecase(&usersQuery.GetUsersUsecaseDeps{
 		UsersRepository: usersRepository,
 	})
-	signupUsecase := usecases.NewSignupUsecase(&usecases.SignupUsecaseDeps{
+	signupUsecase := authCommand.NewSignupUsecase(&authCommand.SignupUsecaseDeps{
 		CredentialsRepository: credentialsRepository,
 		UsersRepository:       usersRepository,
 		RolesRepository:       rolesRepository,
 		PersistenceAdapter:    persistenceAdapter,
 		IdentityAdapter:       identityAdapter,
 	})
-	loginUsecase := usecases.NewLoginUsecase(&usecases.LoginUsecaseDeps{
+	loginUsecase := authCommand.NewLoginUsecase(&authCommand.LoginUsecaseDeps{
 		CredentialsRepository: credentialsRepository,
 		IdentityAdapter:       identityAdapter,
 	})
-	getUserFromTokenUsecase := usecases.NewGetUserFromTokenUsecase(&usecases.GetUserFromTokenUsecaseDeps{
+	getUserFromTokenUsecase := authQuery.NewGetUserFromTokenUsecase(&authQuery.GetUserFromTokenUsecaseDeps{
 		UsersRepository:       usersRepository,
 		CredentialsRepository: credentialsRepository,
 		IdentityAdapter:       identityAdapter,
 	})
-	getRolesUsecase := usecases.NewGetRolesUsecase(&usecases.GetRolesUsecaseDeps{
+	getRolesUsecase := rolesQuery.NewGetRolesUsecase(&rolesQuery.GetRolesUsecaseDeps{
 		RolesRepository: rolesRepository,
 	})
-	createRolesUsecase := usecases.NewCreateRoleUsecase(&usecases.CreateRoleUsecaseDeps{
+	createRolesUsecase := rolesCommand.NewCreateRoleUsecase(&rolesCommand.CreateRoleUsecaseDeps{
 		RolesRepository:       rolesRepository,
 		PermissionsRepository: permissionsRepository,
 		PersistenceAdapter:    persistenceAdapter,
 	})
-	getPermissionsUsecase := usecases.NewGetPermissionsUsecase(&usecases.GetPermissionsUsecaseDeps{
+	getPermissionsUsecase := permimssionsQuery.NewGetPermissionsUsecase(&permimssionsQuery.GetPermissionsUsecaseDeps{
 		PermissionsRepository: permissionsRepository,
 	})
 

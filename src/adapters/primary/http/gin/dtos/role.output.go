@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lautarok/hexa/src/application/domain"
 )
 
 type RoleOutputDto struct {
@@ -15,4 +16,22 @@ type RoleOutputDto struct {
 	Permissions []*PermissionOutputDto `json:"permissions"`
 	CreatedAt   time.Time              `json:"createdAt"`
 	UpdatedAt   time.Time              `json:"updatedAt"`
+}
+
+func NewRoleOutputDto(domainRole *domain.Role) *RoleOutputDto {
+	role := &RoleOutputDto{
+		ID:        domainRole.ID,
+		NameEn:    domainRole.NameEn,
+		NameEs:    domainRole.NameEs,
+		NameFr:    domainRole.NameFr,
+		NamePt:    domainRole.NamePt,
+		CreatedAt: domainRole.CreatedAt,
+		UpdatedAt: domainRole.UpdatedAt,
+	}
+
+	for _, permission := range domainRole.Permissions {
+		role.Permissions = append(role.Permissions, NewPermissionOutputDto(permission))
+	}
+
+	return role
 }

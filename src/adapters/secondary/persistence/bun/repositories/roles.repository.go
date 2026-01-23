@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/uuid"
 	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
 	"github.com/lautarok/hexa/src/application/domain"
@@ -66,16 +67,16 @@ func (repository *RolesRepository) CreateOne(ctx context.Context, domainRole *do
 	var entityRole entities.Role
 	entityRole.FromDomain(domainRole)
 
-	rolePermissions := []*entities.RolePermission{}
-
 	err := db.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) error {
-		_, err := tx.NewInsert().
+		err := tx.NewInsert().
 			Model(&entityRole).
 			Returning("*").
-			Exec(ctx)
+			Scan(ctx)
 		if err != nil {
 			return err
 		}
+
+		rolePermissions := []*entities.RolePermission{}
 
 		for _, permission := range domainRole.Permissions {
 			rolePermissions = append(rolePermissions, &entities.RolePermission{
@@ -84,10 +85,10 @@ func (repository *RolesRepository) CreateOne(ctx context.Context, domainRole *do
 			})
 		}
 
-		_, err = tx.NewInsert().
+		err = tx.NewInsert().
 			Model(&rolePermissions).
 			Returning("*").
-			Exec(ctx)
+			Scan(ctx)
 		if err != nil {
 			return err
 		}
@@ -104,6 +105,68 @@ func (repository *RolesRepository) CreateOne(ctx context.Context, domainRole *do
 		Model(&finalEntityRole).
 		Relation("Permissions").
 		Where("id = ?", entityRole.ID).
+		Scan(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return entityRole.ToDomain(), nil
+}
+
+func (repository *RolesRepository) DeleteOne(ctx context.Context, id uuid.UUID) error {
+	db := repository.dbAdapter.GetDB(ctx)
+
+	_, err := db.NewDelete().
+		Model((*entities.Role)(nil)).
+		Where("id = ?", id).
+		Exec(ctx)
+
+	return err
+}
+
+func (repository *RolesRepository) UpdateOne(ctx context.Context, role *domain.Role) (*domain.Role, error) {
+	db := repository.dbAdapter.GetDB(ctx)
+
+	var entityRole *entities.Role
+	entityRole.FromDomain(role)
+
+	err := db.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) error {
+		_, err := tx.NewUpdate().
+			Model(&entityRole).
+			WherePK().
+			Exec(ctx)
+		if err != nil {
+			return err
+		}
+
+		if role.Permissions == nil {
+			return nil
+		}
+
+		_, err = tx.NewDelete().
+			Model((*entities.RolePermission)(nil)).
+			Where("role_id = ?", entityRole.ID).
+			Exec(ctx)
+		if err != nil {
+			return err
+		}
+
+		_, err = tx.NewInsert().
+			Model(&entityRole.Permissions).
+			Exec(ctx)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.NewSelect().
+		Model(&entityRole).
+		WherePK().
 		Scan(ctx)
 	if err != nil {
 		return nil, err

@@ -7,14 +7,14 @@ type PaginationInputDto struct {
 	Limit int `form:"limit" validate:"min=1,max=9999"`
 }
 
-func (input *PaginationInputDto) Validate(validationAdapter ports.ValidationPort) error {
-	if input.Page == 0 {
-		input.Page = 1
+func (dto *PaginationInputDto) Validate(validationAdapter ports.ValidationPort) error {
+	if dto.Page == 0 {
+		dto.Page = 1
 	}
 
-	if input.Limit == 0 {
-		input.Limit = 15
+	if dto.Limit == 0 {
+		dto.Limit = 15
 	}
 
-	return validationAdapter.Struct(input)
+	return validationAdapter.Struct(dto)
 }

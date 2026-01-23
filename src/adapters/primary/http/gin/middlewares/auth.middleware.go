@@ -5,15 +5,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lautarok/hexa/src/application/errors"
-	"github.com/lautarok/hexa/src/application/usecases"
+	authQuery "github.com/lautarok/hexa/src/application/usecases/auth/query"
 )
 
 type AuthMiddleware struct {
-	getUserFromTokenUsecase *usecases.GetUserFromTokenUsecase
+	getUserFromTokenUsecase *authQuery.GetUserFromTokenUsecase
 }
 
 type AuthMiddlewareDeps struct {
-	GetUserFromTokenUsecase *usecases.GetUserFromTokenUsecase
+	GetUserFromTokenUsecase *authQuery.GetUserFromTokenUsecase
 }
 
 func NewAuthMiddleware(deps *AuthMiddlewareDeps) *AuthMiddleware {
@@ -34,7 +34,7 @@ func (middleware *AuthMiddleware) HandleAuth(permissionAlias ...string) gin.Hand
 			return
 		}
 
-		userFromToken, appError := middleware.getUserFromTokenUsecase.GetUserFromToken(ctx, &usecases.GetUserFromTokenUsecaseInput{
+		userFromToken, appError := middleware.getUserFromTokenUsecase.GetUserFromToken(ctx, &authQuery.GetUserFromTokenUsecaseInput{
 			Token: token,
 		})
 

@@ -7,16 +7,16 @@ import (
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
 	"github.com/lautarok/hexa/src/application/errors"
 	"github.com/lautarok/hexa/src/application/ports"
-	"github.com/lautarok/hexa/src/application/usecases"
+	permissionsQuery "github.com/lautarok/hexa/src/application/usecases/permissions/query"
 )
 
 type PermissionsController struct {
-	getPermissionsUsecase *usecases.GetPermissionsUsecase
+	getPermissionsUsecase *permissionsQuery.GetPermissionsUsecase
 	validation            ports.ValidationPort
 }
 
 type PermissionsControllerDeps struct {
-	GetPermissionsUsecase *usecases.GetPermissionsUsecase
+	GetPermissionsUsecase *permissionsQuery.GetPermissionsUsecase
 	Validation            ports.ValidationPort
 }
 
@@ -46,7 +46,7 @@ func (controller *PermissionsController) GetPermissionList(ctx *gin.Context) {
 		return
 	}
 
-	permissionList, appErr := controller.getPermissionsUsecase.GetPermissions(ctx, &usecases.GetPermissionsUsecaseInput{
+	result, appErr := controller.getPermissionsUsecase.GetPermissions(ctx, &permissionsQuery.GetPermissionsUsecaseInput{
 		Page:  paginationDto.Page,
 		Limit: paginationDto.Limit,
 	})
@@ -55,20 +55,8 @@ func (controller *PermissionsController) GetPermissionList(ctx *gin.Context) {
 		return
 	}
 
-	permissionsDto := []*dtos.PermissionOutputDto{}
-	for _, permission := range permissionList {
-		permissionsDto = append(permissionsDto, &dtos.PermissionOutputDto{
-			ID:        permission.ID,
-			Alias:     permission.Alias,
-			CreatedAt: permission.CreatedAt,
-		})
-	}
-
-	ctx.JSON(http.StatusOK, &dtos.PermissionListOutputDto{
-		PaginationOutputDto: &dtos.PaginationOutputDto{
-			Page:  paginationDto.Page,
-			Limit: paginationDto.Limit,
-		},
-		Permissions: permissionsDto,
-	})
+	ctx.JSON(http.StatusOK, dtos.NewPermissionListOutputDto(
+		&paginationDto,
+		result,
+	))
 }

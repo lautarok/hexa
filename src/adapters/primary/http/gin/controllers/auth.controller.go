@@ -9,20 +9,20 @@ import (
 	"github.com/lautarok/hexa/src/application/domain"
 	"github.com/lautarok/hexa/src/application/errors"
 	"github.com/lautarok/hexa/src/application/ports"
-	"github.com/lautarok/hexa/src/application/usecases"
+	authCommand "github.com/lautarok/hexa/src/application/usecases/auth/command"
 )
 
 type AuthController struct {
 	authMiddleware *middlewares.AuthMiddleware
-	signupUsecase  *usecases.SignupUsecase
-	loginUsecase   *usecases.LoginUsecase
+	signupUsecase  *authCommand.SignupUsecase
+	loginUsecase   *authCommand.LoginUsecase
 	validation     ports.ValidationPort
 }
 
 type AuthControllerDeps struct {
 	AuthMiddleware *middlewares.AuthMiddleware
-	SignupUsecase  *usecases.SignupUsecase
-	LoginUsecase   *usecases.LoginUsecase
+	SignupUsecase  *authCommand.SignupUsecase
+	LoginUsecase   *authCommand.LoginUsecase
 	Validation     ports.ValidationPort
 }
 
@@ -48,7 +48,7 @@ func (controller *AuthController) Register(router *gin.RouterGroup) {
 
 func (controller *AuthController) Signup(ctx *gin.Context) {
 	var reqBody dtos.SignupInputDto
-	ctx.ShouldBindBodyWithJSON(&reqBody)
+	ctx.ShouldBindJSON(&reqBody)
 
 	if err := reqBody.Validate(controller.validation); err != nil {
 		ctx.Error(
@@ -57,7 +57,7 @@ func (controller *AuthController) Signup(ctx *gin.Context) {
 		return
 	}
 
-	usecaseInput := &usecases.SignupUsecaseInput{
+	usecaseInput := &authCommand.SignupUsecaseInput{
 		Name:     reqBody.Name,
 		Surname:  reqBody.Surname,
 		Email:    reqBody.Email,
@@ -65,42 +65,42 @@ func (controller *AuthController) Signup(ctx *gin.Context) {
 		Password: reqBody.Password,
 	}
 
-	token, appErr := controller.signupUsecase.Signup(ctx, usecaseInput)
+	result, appErr := controller.signupUsecase.Signup(ctx, usecaseInput)
 	if appErr != nil {
 		ctx.Error(appErr)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &dtos.TokenOutputDto{
-		Token: token.Token,
-		Exp:   token.Exp,
-	})
+	ctx.JSON(
+		http.StatusCreated,
+		dtos.NewTokenOutputDto(result.Token, result.Exp, result.User),
+	)
 }
 
 func (controller *AuthController) Login(ctx *gin.Context) {
 	var reqBody dtos.LoginInputDto
-	ctx.ShouldBindBodyWithJSON(&reqBody)
+	ctx.ShouldBindJSON(&reqBody)
 
 	if err := reqBody.Validate(controller.validation); err != nil {
 		ctx.Error(errors.NewInvalidInputError(err.Error()))
 		return
 	}
 
-	usecaseInput := &usecases.LoginUsecaseInput{
+	usecaseInput := &authCommand.LoginUsecaseInput{
 		UsernameOrEmail: reqBody.UsernameOrEmail,
 		Password:        reqBody.Password,
 	}
 
-	token, err := controller.loginUsecase.Login(ctx, usecaseInput)
+	result, err := controller.loginUsecase.Login(ctx, usecaseInput)
 	if err != nil {
 		ctx.Error(err)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &dtos.TokenOutputDto{
-		Token: token.Token,
-		Exp:   token.Exp,
-	})
+	ctx.JSON(
+		http.StatusCreated,
+		dtos.NewTokenOutputDto(result.Token, result.Exp, result.User),
+	)
 }
 
 func (controller *AuthController) GetMyUser(ctx *gin.Context) {
@@ -121,21 +121,5 @@ func (controller *AuthController) GetMyUser(ctx *gin.Context) {
 		return
 	}
 
-	permissions := []string{}
-	for _, permission := range user.Role.Permissions {
-		permissions = append(permissions, permission.Alias)
-	}
-
-	ctx.JSON(http.StatusOK, &dtos.UserOutputDto{
-		ID:        user.ID,
-		Name:      user.Name,
-		Surname:   user.Surname,
-		CreatedAt: user.CreatedAt,
-		Credential: &dtos.CredentialOutputDto{
-			ID:          user.Credential.ID,
-			Username:    user.Credential.Username,
-			Email:       user.Credential.Email,
-			Permissions: permissions,
-		},
-	})
+	ctx.JSON(http.StatusOK, dtos.NewUserOutputDto(user))
 }

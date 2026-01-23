@@ -57,11 +57,11 @@ func (repository *UsersRepository) CreateOne(ctx context.Context, domainUser *do
 	var user entities.User
 	user.FromDomain(domainUser)
 
-	_, err := db.
+	err := db.
 		NewInsert().
 		Returning("*").
 		Model(&user).
-		Exec(ctx)
+		Scan(ctx)
 
 	return user.ToDomain(), err
 }
@@ -82,4 +82,44 @@ func (respository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUI
 	log.Println(user.Role)
 
 	return user.ToDomain(), err
+}
+
+func (repository *UsersRepository) DeleteOne(ctx context.Context, id uuid.UUID) error {
+	db := repository.dbAdapter.GetDB(ctx)
+
+	_, err := db.NewDelete().
+		Model((*entities.User)(nil)).
+		Where("id = ?", id).
+		Exec(ctx)
+
+	return err
+}
+
+func (repository *UsersRepository) UpdateOne(ctx context.Context, user *domain.User) (*domain.User, error) {
+	db := repository.dbAdapter.GetDB(ctx)
+
+	var entityUser entities.User
+	entityUser.FromDomain(user)
+
+	_, err := db.NewUpdate().
+		Model(&entityUser).
+		WherePK().
+		Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.NewSelect().
+		Model(&entityUser).
+		WherePK().
+		Relation("Credential").
+		Relation("Role", func(sq *bun.SelectQuery) *bun.SelectQuery {
+			return sq.Relation("Permissions")
+		}).
+		Scan(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return entityUser.ToDomain(), nil
 }

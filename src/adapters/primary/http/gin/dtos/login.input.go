@@ -7,6 +7,6 @@ type LoginInputDto struct {
 	Password        string `validate:"required,securepassword" json:"password"`
 }
 
-func (input *LoginInputDto) Validate(validationAdapter ports.ValidationPort) error {
-	return validationAdapter.Struct(input)
+func (dto *LoginInputDto) Validate(validationAdapter ports.ValidationPort) error {
+	return validationAdapter.Struct(dto)
 }

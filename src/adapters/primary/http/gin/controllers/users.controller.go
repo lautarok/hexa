@@ -7,16 +7,16 @@ import (
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
 	"github.com/lautarok/hexa/src/application/errors"
 	"github.com/lautarok/hexa/src/application/ports"
-	"github.com/lautarok/hexa/src/application/usecases"
+	usersQuery "github.com/lautarok/hexa/src/application/usecases/users/query"
 )
 
 type UsersController struct {
-	getUsersUsecase *usecases.GetUsersUsecase
+	getUsersUsecase *usersQuery.GetUsersUsecase
 	validation      ports.ValidationPort
 }
 
 type UsersControllerDeps struct {
-	GetUsersUsecase *usecases.GetUsersUsecase
+	GetUsersUsecase *usersQuery.GetUsersUsecase
 	Validation      ports.ValidationPort
 }
 
@@ -46,7 +46,7 @@ func (controller *UsersController) GetUserList(ctx *gin.Context) {
 		return
 	}
 
-	users, appErr := controller.getUsersUsecase.GetUserList(ctx, &usecases.GetUsersUsecaseInput{
+	users, appErr := controller.getUsersUsecase.GetUserList(ctx, &usersQuery.GetUsersUsecaseInput{
 		Page:  paginationDto.Page,
 		Limit: paginationDto.Limit,
 	})
@@ -55,29 +55,5 @@ func (controller *UsersController) GetUserList(ctx *gin.Context) {
 		return
 	}
 
-	usersDto := []*dtos.UserOutputDto{}
-
-	for _, user := range users {
-		usersDto = append(usersDto, &dtos.UserOutputDto{
-			ID:      user.ID,
-			Name:    user.Name,
-			Surname: user.Surname,
-			Credential: &dtos.CredentialOutputDto{
-				ID:       user.Credential.ID,
-				Email:    user.Credential.Email,
-				Username: user.Credential.Username,
-			},
-			CreatedAt: user.CreatedAt,
-		})
-	}
-
-	output := dtos.UserListOutputDto{
-		PaginationOutputDto: &dtos.PaginationOutputDto{
-			Page:  paginationDto.Page,
-			Limit: paginationDto.Limit,
-		},
-		Users: usersDto,
-	}
-
-	ctx.JSON(http.StatusOK, output)
+	ctx.JSON(http.StatusOK, dtos.NewUserListOutputDto(&paginationDto, users))
 }
