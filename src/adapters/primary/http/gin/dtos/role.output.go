@@ -13,6 +13,7 @@ type RoleOutputDto struct {
 	NameEs      string                 `json:"nameEs"`
 	NameFr      string                 `json:"nameFr"`
 	NamePt      string                 `json:"namePt"`
+	NameNl      string                 `json:"nameNl"`
 	Permissions []*PermissionOutputDto `json:"permissions"`
 	CreatedAt   time.Time              `json:"createdAt"`
 	UpdatedAt   time.Time              `json:"updatedAt"`
@@ -25,6 +26,7 @@ func NewRoleOutputDto(domainRole *domain.Role) *RoleOutputDto {
 		NameEs:    domainRole.NameEs,
 		NameFr:    domainRole.NameFr,
 		NamePt:    domainRole.NamePt,
+		NameNl:    domainRole.NameNl,
 		CreatedAt: domainRole.CreatedAt,
 		UpdatedAt: domainRole.UpdatedAt,
 	}

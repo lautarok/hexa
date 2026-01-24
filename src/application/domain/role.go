@@ -13,6 +13,7 @@ type Role struct {
 	NameEs      string        `validation:"min=2,max=30"`
 	NameEn      string        `validation:"min=2,max=30"`
 	NamePt      string        `validation:"min=2,max=30"`
+	NameNl      string        `validation:"min=2,max=30"`
 	Permissions []*Permission `validation:"required,min=1"`
 	Users       []*User
 	CreatedAt   time.Time
