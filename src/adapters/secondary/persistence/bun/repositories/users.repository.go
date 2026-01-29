@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"log"
 
 	"github.com/google/uuid"
 	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
@@ -78,8 +77,6 @@ func (respository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUI
 		Relation("Role").
 		Relation("Role.Permissions").
 		Scan(ctx)
-
-	log.Println(user.Role)
 
 	return user.ToDomain(), err
 }
