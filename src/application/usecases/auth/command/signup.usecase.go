@@ -15,6 +15,7 @@ type SignupUsecase struct {
 	rolesRepository       domain.IRolesRepository
 	persistenceAdapter    ports.PersistencePort
 	identityAdapter       ports.IdentityPort
+	passwordAdapter       ports.PasswordPort
 }
 
 type SignupUsecaseDeps struct {
@@ -23,6 +24,7 @@ type SignupUsecaseDeps struct {
 	RolesRepository       domain.IRolesRepository
 	PersistenceAdapter    ports.PersistencePort
 	IdentityAdapter       ports.IdentityPort
+	PasswordAdapter       ports.PasswordPort
 }
 
 func NewSignupUsecase(deps *SignupUsecaseDeps) *SignupUsecase {
@@ -32,6 +34,7 @@ func NewSignupUsecase(deps *SignupUsecaseDeps) *SignupUsecase {
 		rolesRepository:       deps.RolesRepository,
 		persistenceAdapter:    deps.PersistenceAdapter,
 		identityAdapter:       deps.IdentityAdapter,
+		passwordAdapter:       deps.PasswordAdapter,
 	}
 }
 
@@ -55,7 +58,7 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 	var repoErr error
 
 	err := usecase.persistenceAdapter.Transaction(ctx, func(ctx context.Context) error {
-		roleId, err := uuid.Parse("11111111-1111-1111-1111-111111111111")
+		roleId, err := uuid.Parse("cf49f2ea-8605-41a1-aa6b-3bc35129031e")
 		if err != nil {
 			return err
 		}
@@ -72,9 +75,14 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 			return repoErr
 		}
 
+		password, err := usecase.passwordAdapter.Hash(input.Password)
+		if err != nil {
+			return err
+		}
+
 		insertedCredential, repoErr = usecase.credentialsRepository.CreateOne(ctx, &domain.Credential{
 			Username: input.Username,
-			Password: input.Password,
+			Password: string(password),
 			Email:    input.Email,
 			User: &domain.User{
 				ID: insertedUser.ID,

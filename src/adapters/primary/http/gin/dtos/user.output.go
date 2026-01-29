@@ -17,12 +17,20 @@ type UserOutputDto struct {
 }
 
 func NewUserOutputDto(domainUser *domain.User) *UserOutputDto {
-	return &UserOutputDto{
-		ID:         domainUser.ID,
-		Name:       domainUser.Name,
-		Surname:    domainUser.Surname,
-		Credential: NewCredentialOutputDto(domainUser.Credential),
-		CreatedAt:  domainUser.CreatedAt,
-		Role:       NewRoleOutputDto(domainUser.Role),
+	user := &UserOutputDto{
+		ID:        domainUser.ID,
+		Name:      domainUser.Name,
+		Surname:   domainUser.Surname,
+		CreatedAt: domainUser.CreatedAt,
 	}
+
+	if domainUser.Credential != nil {
+		user.Credential = NewCredentialOutputDto(domainUser.Credential)
+	}
+
+	if domainUser.Role != nil {
+		user.Role = NewRoleOutputDto(domainUser.Role)
+	}
+
+	return user
 }

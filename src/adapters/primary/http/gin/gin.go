@@ -2,7 +2,9 @@ package gin
 
 import (
 	"log"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,8 +13,18 @@ type GinAdapter struct {
 	Router *gin.RouterGroup
 }
 
-func NewGinAdapter(routerPrefix string, prodEnv bool) *GinAdapter {
-	if prodEnv {
+type GinAdapterDeps struct {
+	RouterPrefix     string
+	Production       bool
+	AllowOrigins     []string
+	AllowMethods     []string
+	AllowHeaders     []string
+	AllowCredentials bool
+	MaxAge           time.Duration
+}
+
+func NewGinAdapter(deps *GinAdapterDeps) *GinAdapter {
+	if deps.Production {
 		gin.SetMode("release")
 	} else {
 		gin.SetMode("debug")
@@ -20,9 +32,16 @@ func NewGinAdapter(routerPrefix string, prodEnv bool) *GinAdapter {
 
 	engine := gin.Default()
 
+	engine.Use(cors.New(cors.Config{
+		AllowOrigins:     deps.AllowOrigins,
+		AllowMethods:     deps.AllowMethods,
+		AllowCredentials: deps.AllowCredentials,
+		MaxAge:           deps.MaxAge,
+	}))
+
 	return &GinAdapter{
 		Engine: engine,
-		Router: engine.Group(routerPrefix),
+		Router: engine.Group(deps.RouterPrefix),
 	}
 }
 

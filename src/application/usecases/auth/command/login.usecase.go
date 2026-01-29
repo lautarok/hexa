@@ -11,17 +11,20 @@ import (
 type LoginUsecase struct {
 	credentialsRepository domain.ICredentialsRepository
 	identityAdapter       ports.IdentityPort
+	passwordAdapter       ports.PasswordPort
 }
 
 type LoginUsecaseDeps struct {
 	CredentialsRepository domain.ICredentialsRepository
 	IdentityAdapter       ports.IdentityPort
+	PasswordAdapter       ports.PasswordPort
 }
 
 func NewLoginUsecase(deps *LoginUsecaseDeps) *LoginUsecase {
 	return &LoginUsecase{
 		credentialsRepository: deps.CredentialsRepository,
 		identityAdapter:       deps.IdentityAdapter,
+		passwordAdapter:       deps.PasswordAdapter,
 	}
 }
 
@@ -43,6 +46,10 @@ func (usecase *LoginUsecase) Login(ctx context.Context, input *LoginUsecaseInput
 	}
 
 	if matchCredential == nil {
+		return nil, errors.NewNotFoundError("User not found")
+	}
+
+	if !usecase.passwordAdapter.Compare(matchCredential.Password, input.Password) {
 		return nil, errors.NewNotFoundError("User not found")
 	}
 

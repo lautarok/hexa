@@ -31,8 +31,10 @@ func NewRoleOutputDto(domainRole *domain.Role) *RoleOutputDto {
 		UpdatedAt: domainRole.UpdatedAt,
 	}
 
-	for _, permission := range domainRole.Permissions {
-		role.Permissions = append(role.Permissions, NewPermissionOutputDto(permission))
+	if domainRole.Permissions != nil {
+		for _, permission := range domainRole.Permissions {
+			role.Permissions = append(role.Permissions, NewPermissionOutputDto(permission))
+		}
 	}
 
 	return role

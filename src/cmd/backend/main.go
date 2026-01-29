@@ -2,12 +2,16 @@ package main
 
 import (
 	"log"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/controllers"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/middlewares"
 	"github.com/lautarok/hexa/src/adapters/secondary/config"
 	"github.com/lautarok/hexa/src/adapters/secondary/identity/jwt"
+	"github.com/lautarok/hexa/src/adapters/secondary/password/bcrypt"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/repositories"
 	"github.com/lautarok/hexa/src/adapters/secondary/validation/validator"
@@ -25,12 +29,52 @@ func main() {
 		log.Fatalf("Error loading environment variables: %v", err)
 	}
 
+	passwordAdapter := bcrypt.NewBcryptAdapter()
+
 	environment, err := envAdapter.GetStr("ENVIRONMENT")
 	if err != nil {
 		environment = "DEV"
 	}
 
-	httpAdapter := gin.NewGinAdapter("api/v1", environment == "PROD")
+	AllowOrigins, err := envAdapter.GetStr("ALLOW_ORIGINS")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	AllowMethods, err := envAdapter.GetStr("ALLOW_METHODS")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	AllowHeaders, err := envAdapter.GetStr("ALLOW_HEADERS")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	AllowCredentials, err := envAdapter.GetStr("ALLOW_CREDENTIALS")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	MaxAgeStr, err := envAdapter.GetStr("MAX_AGE_HOURS")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	MaxAge, err := strconv.Atoi(MaxAgeStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	httpAdapter := gin.NewGinAdapter(&gin.GinAdapterDeps{
+		RouterPrefix:     "api/v1",
+		Production:       environment == "PROD",
+		AllowOrigins:     strings.Split(AllowOrigins, ","),
+		AllowMethods:     strings.Split(AllowMethods, ","),
+		AllowHeaders:     strings.Split(AllowHeaders, ","),
+		AllowCredentials: AllowCredentials == "1",
+		MaxAge:           time.Hour * time.Duration(MaxAge),
+	})
 
 	errorMiddleware := middlewares.NewErrorMiddleware()
 	httpAdapter.RegisterGlobalMiddlewares(errorMiddleware.HandleErrors)
@@ -79,10 +123,12 @@ func main() {
 		RolesRepository:       rolesRepository,
 		PersistenceAdapter:    persistenceAdapter,
 		IdentityAdapter:       identityAdapter,
+		PasswordAdapter:       passwordAdapter,
 	})
 	loginUsecase := authCommand.NewLoginUsecase(&authCommand.LoginUsecaseDeps{
 		CredentialsRepository: credentialsRepository,
 		IdentityAdapter:       identityAdapter,
+		PasswordAdapter:       passwordAdapter,
 	})
 	getUserFromTokenUsecase := authQuery.NewGetUserFromTokenUsecase(&authQuery.GetUserFromTokenUsecaseDeps{
 		UsersRepository:       usersRepository,
