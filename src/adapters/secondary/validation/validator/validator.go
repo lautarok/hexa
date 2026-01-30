@@ -42,6 +42,14 @@ func NewValidatorAdapter() ports.ValidationPort {
 			len(username) <= 25
 	})
 
+	v.RegisterValidation("name", func(field validator.FieldLevel) bool {
+		name := field.Field().String()
+		regExp := regexp.MustCompile(
+			`^[\p{L}]+(?:[ '-][\p{L}]+)*$`,
+		)
+		return regExp.MatchString(name)
+	})
+
 	return &ValidatorAdapter{
 		validator: v,
 	}
