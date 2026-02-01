@@ -23,7 +23,7 @@ type Role struct {
 }
 
 type IRolesRepository interface {
-	GetOneByAlias(ctx context.Context, alias string) (*Role, error)
+	GetOneBySlug(ctx context.Context, slug string) (*Role, error)
 	FindMany(ctx context.Context, skip int, limit int) ([]*Role, error)
 	CreateOne(ctx context.Context, role *Role) (*Role, error)
 	DeleteOne(ctx context.Context, id uuid.UUID) error

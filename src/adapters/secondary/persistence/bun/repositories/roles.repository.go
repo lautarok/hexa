@@ -25,14 +25,14 @@ func NewRolesRepository(deps *RolesRepositoryDeps) domain.IRolesRepository {
 	}
 }
 
-func (repository *RolesRepository) GetOneByAlias(ctx context.Context, alias string) (*domain.Role, error) {
+func (repository *RolesRepository) GetOneBySlug(ctx context.Context, slug string) (*domain.Role, error) {
 	db := repository.dbAdapter.GetDB(ctx)
 
 	var role entities.Role
 	err := db.
 		NewSelect().
 		Model(&role).
-		Where("alias = ?", alias).
+		Where("slug = ?", slug).
 		Scan(ctx)
 
 	return role.ToDomain(), err

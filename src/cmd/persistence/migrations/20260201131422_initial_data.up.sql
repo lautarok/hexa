@@ -15,26 +15,28 @@ inserted_common_user_permission AS (
 ),
 
 inserted_admin_role AS (
-    INSERT INTO roles (name_en, name_es, name_fr, name_pt, name_nl, lock)
+    INSERT INTO roles (name_en, name_es, name_fr, name_pt, name_nl, slug, lock)
     VALUES (
         'Administrator',
         'Administrador',
         'Administrateur',
         'Administrador',
         'Beheerder',
+        'admin',
         TRUE
     )
     RETURNING id
 ),
 
 inserted_common_user_role AS (
-    INSERT INTO roles (name_en, name_es, name_fr, name_pt, name_nl, lock)
+    INSERT INTO roles (name_en, name_es, name_fr, name_pt, name_nl, slug, lock)
     VALUES (
         'User',
         'Usuario',
         'Utilisateur',
         'Usuário',
         'Gebruiker',
+        'common:user',
         TRUE
     )
     RETURNING id

@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/lautarok/hexa/src/application/domain"
 	"github.com/lautarok/hexa/src/application/errors"
 	"github.com/lautarok/hexa/src/application/ports"
@@ -59,7 +58,7 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 	var repoErr error
 
 	err := usecase.persistenceAdapter.Transaction(ctx, func(ctx context.Context) error {
-		roleId, err := uuid.Parse("cf49f2ea-8605-41a1-aa6b-3bc35129031e")
+		role, err := usecase.rolesRepository.GetOneBySlug(ctx, "common:user")
 		if err != nil {
 			return err
 		}
@@ -68,7 +67,7 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 			Name:    input.Name,
 			Surname: input.Surname,
 			Role: &domain.Role{
-				ID: roleId,
+				ID: role.ID,
 			},
 		})
 
