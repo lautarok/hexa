@@ -8,11 +8,11 @@ import (
 )
 
 type Credential struct {
-	ID        uuid.UUID `validation:"uuid"`
-	Email     string    `validation:"email"`
-	Username  string    `validation:"username"`
-	Password  string    `validation:"required"`
-	User      *User     `validation:"required"`
+	ID        uuid.UUID
+	Email     string
+	Username  string
+	Password  string
+	User      *User
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

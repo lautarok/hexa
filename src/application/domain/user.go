@@ -8,11 +8,11 @@ import (
 )
 
 type User struct {
-	ID         uuid.UUID   `validation:"required,uuid"`
-	Role       *Role       `validation:"required"`
-	Name       string      `validation:"required,min=3,max=40"`
-	Surname    string      `validation:"required,min=3,max=40"`
-	Credential *Credential `validation:"required"`
+	ID         uuid.UUID
+	Role       *Role
+	Name       string
+	Surname    string
+	Credential *Credential
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }

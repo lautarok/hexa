@@ -8,8 +8,8 @@ import (
 )
 
 type Permission struct {
-	ID        uuid.UUID `validation:"uuid"`
-	Alias     string    `validation:"min=1,max=30"`
+	ID        uuid.UUID
+	Alias     string
 	Roles     []*Role
 	CreatedAt time.Time
 	UpdatedAt time.Time

@@ -8,13 +8,13 @@ import (
 )
 
 type Role struct {
-	ID          uuid.UUID     `validation:"uuid"`
-	NameFr      string        `validation:"min=2,max=30"`
-	NameEs      string        `validation:"min=2,max=30"`
-	NameEn      string        `validation:"min=2,max=30"`
-	NamePt      string        `validation:"min=2,max=30"`
-	NameNl      string        `validation:"min=2,max=30"`
-	Permissions []*Permission `validation:"required,min=1"`
+	ID          uuid.UUID
+	NameFr      string
+	NameEs      string
+	NameEn      string
+	NamePt      string
+	NameNl      string
+	Permissions []*Permission
 	Users       []*User
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
