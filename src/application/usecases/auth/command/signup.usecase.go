@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/lautarok/hexa/src/application/domain"
@@ -98,7 +99,11 @@ func (usecase *SignupUsecase) Signup(ctx context.Context, input *SignupUsecaseIn
 
 	if err != nil {
 		if usecase.persistenceAdapter.IsUniqueViolation(err) {
-			return nil, errors.NewAlreadyExistsError("Email or username already exists")
+			errStr := err.Error()
+			if strings.Contains(errStr, "username") {
+				return nil, errors.NewAlreadyExistsError("Username already exists")
+			}
+			return nil, errors.NewAlreadyExistsError("Email already exists")
 		}
 
 		return nil, errors.NewInternalError(err)

@@ -29,6 +29,7 @@ func (dto *SignupInputDto) normalizeName(input string) string {
 		"der": true,
 		"la":  true,
 		"le":  true,
+		"del": true,
 	}
 
 	for i, word := range words {
