@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -25,7 +26,7 @@ func NewBunAdapter(deps *BunAdapterDeps) *BunAdapter {
 
 	db := bun.NewDB(sqldb, pgdialect.New())
 
-	SetupInitialTables(db)
+	db.RegisterModel((*entities.RolePermission)(nil))
 
 	return &BunAdapter{
 		db: db,

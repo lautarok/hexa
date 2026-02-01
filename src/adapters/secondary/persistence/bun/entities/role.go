@@ -16,6 +16,7 @@ type Role struct {
 	NameFr      string        `bun:"name_fr,type:varchar(30),unique,nullzero"`
 	NamePt      string        `bun:"name_pt,type:varchar(30),unique,nullzero"`
 	NameNl      string        `bun:"name_nl,type:varchar(30),unique,nullzero"`
+	Lock        bool          `bun:"lock,notnull,default:false"`
 	Users       []*User       `bun:"rel:has-many,join:id=role_id"`
 	Permissions []*Permission `bun:"m2m:role_permissions,join:Role=Permission"`
 	CreatedAt   time.Time     `bun:"created_at,type:timestamp,default:current_timestamp,notnull,nullzero"`

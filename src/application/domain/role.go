@@ -14,6 +14,8 @@ type Role struct {
 	NameEn      string
 	NamePt      string
 	NameNl      string
+	Lock        bool
+	Slug        string
 	Permissions []*Permission
 	Users       []*User
 	CreatedAt   time.Time

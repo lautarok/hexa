@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
 	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
@@ -65,8 +67,8 @@ func (repository *UsersRepository) CreateOne(ctx context.Context, domainUser *do
 	return user.ToDomain(), err
 }
 
-func (respository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	db := respository.dbAdapter.GetDB(ctx)
+func (repository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+	db := repository.dbAdapter.GetDB(ctx)
 
 	var user entities.User
 
@@ -78,7 +80,14 @@ func (respository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUI
 		Relation("Role.Permissions").
 		Scan(ctx)
 
-	return user.ToDomain(), err
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return user.ToDomain(), nil
 }
 
 func (repository *UsersRepository) DeleteOne(ctx context.Context, id uuid.UUID) error {
