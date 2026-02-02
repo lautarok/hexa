@@ -7,26 +7,26 @@ import (
 	"github.com/google/uuid"
 	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
-	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/core/domain"
 	"github.com/uptrace/bun"
 )
 
 type RolesRepository struct {
-	dbAdapter *bunPersistence.BunAdapter
+	persistenceAdapter *bunPersistence.BunAdapter
 }
 
 type RolesRepositoryDeps struct {
-	DBAdapter *bunPersistence.BunAdapter
+	PersistenceAdapter *bunPersistence.BunAdapter
 }
 
 func NewRolesRepository(deps *RolesRepositoryDeps) domain.IRolesRepository {
 	return &RolesRepository{
-		dbAdapter: deps.DBAdapter,
+		persistenceAdapter: deps.PersistenceAdapter,
 	}
 }
 
 func (repository *RolesRepository) GetOneBySlug(ctx context.Context, slug string) (*domain.Role, error) {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var role entities.Role
 	err := db.
@@ -39,7 +39,7 @@ func (repository *RolesRepository) GetOneBySlug(ctx context.Context, slug string
 }
 
 func (repository *RolesRepository) FindMany(ctx context.Context, skip int, limit int) ([]*domain.Role, error) {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityRoleList []*entities.Role
 	err := db.NewSelect().
@@ -62,7 +62,7 @@ func (repository *RolesRepository) FindMany(ctx context.Context, skip int, limit
 }
 
 func (repository *RolesRepository) CreateOne(ctx context.Context, domainRole *domain.Role) (*domain.Role, error) {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityRole entities.Role
 	entityRole.FromDomain(domainRole)
@@ -114,7 +114,7 @@ func (repository *RolesRepository) CreateOne(ctx context.Context, domainRole *do
 }
 
 func (repository *RolesRepository) DeleteOne(ctx context.Context, id uuid.UUID) error {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	_, err := db.NewDelete().
 		Model((*entities.Role)(nil)).
@@ -125,7 +125,7 @@ func (repository *RolesRepository) DeleteOne(ctx context.Context, id uuid.UUID) 
 }
 
 func (repository *RolesRepository) UpdateOne(ctx context.Context, role *domain.Role) (*domain.Role, error) {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityRole *entities.Role
 	entityRole.FromDomain(role)

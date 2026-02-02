@@ -1,0 +1,41 @@
+package query
+
+import (
+	"context"
+
+	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/core/errors"
+)
+
+type GetRolesUsecase struct {
+	rolesRepository domain.IRolesRepository
+}
+
+type GetRolesUsecaseDeps struct {
+	RolesRepository domain.IRolesRepository
+}
+
+func NewGetRolesUsecase(deps *GetRolesUsecaseDeps) *GetRolesUsecase {
+	return &GetRolesUsecase{
+		rolesRepository: deps.RolesRepository,
+	}
+}
+
+type GetRolesUsecaseInput struct {
+	Page  int
+	Limit int
+}
+
+func (usecase *GetRolesUsecase) GetRoleList(ctx context.Context, input *GetRolesUsecaseInput) ([]*domain.Role, error) {
+	roleList, err := usecase.rolesRepository.FindMany(
+		ctx,
+		input.Limit*(input.Page-1),
+		input.Limit,
+	)
+
+	if err != nil {
+		return nil, errors.NewInternalError(err)
+	}
+
+	return roleList, nil
+}

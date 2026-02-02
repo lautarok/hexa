@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/core/domain"
 	"github.com/uptrace/bun"
 )
 

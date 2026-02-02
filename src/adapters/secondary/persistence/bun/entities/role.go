@@ -5,22 +5,22 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/core/domain"
 	"github.com/uptrace/bun"
 )
 
 type Role struct {
-	ID          uuid.UUID     `bun:"id,type:uuid,notnull,nullzero,pk,default:gen_random_uuid()"`
-	NameEn      string        `bun:"name_en,type:varchar(30),unique,nullzero"`
-	NameEs      string        `bun:"name_es,type:varchar(30),unique,nullzero"`
-	NameFr      string        `bun:"name_fr,type:varchar(30),unique,nullzero"`
-	NamePt      string        `bun:"name_pt,type:varchar(30),unique,nullzero"`
-	NameNl      string        `bun:"name_nl,type:varchar(30),unique,nullzero"`
-	Lock        bool          `bun:"lock,notnull,default:false"`
-	Users       []*User       `bun:"rel:has-many,join:id=role_id"`
-	Permissions []*Permission `bun:"m2m:role_permissions,join:Role=Permission"`
-	CreatedAt   time.Time     `bun:"created_at,type:timestamp,default:current_timestamp,notnull,nullzero"`
-	UpdatedAt   time.Time     `bun:"updated_at,type:timestamp,default:current_timestamp,notnull,nullzero"`
+	ID          uuid.UUID    `bun:"id,type:uuid,notnull,nullzero,pk,default:gen_random_uuid()"`
+	NameEn      string       `bun:"name_en,type:varchar(30),unique,nullzero"`
+	NameEs      string       `bun:"name_es,type:varchar(30),unique,nullzero"`
+	NameFr      string       `bun:"name_fr,type:varchar(30),unique,nullzero"`
+	NamePt      string       `bun:"name_pt,type:varchar(30),unique,nullzero"`
+	NameNl      string       `bun:"name_nl,type:varchar(30),unique,nullzero"`
+	Lock        bool         `bun:"lock,notnull,default:false"`
+	Users       []*User      `bun:"rel:has-many,join:id=role_id"`
+	Permissions []Permission `bun:"m2m:role_permissions,join:Role=Permission"`
+	CreatedAt   time.Time    `bun:"created_at,type:timestamp,default:current_timestamp,notnull,nullzero"`
+	UpdatedAt   time.Time    `bun:"updated_at,type:timestamp,default:current_timestamp,notnull,nullzero"`
 }
 
 func (entity *Role) BeforeUpdate(ctx context.Context, query bun.Query) error {
@@ -47,7 +47,7 @@ func (entity *Role) ToDomain() *domain.Role {
 
 	if entity.Permissions != nil {
 		for _, permission := range entity.Permissions {
-			role.Permissions = append(role.Permissions, permission.ToDomain())
+			role.Permissions = append(role.Permissions, *permission.ToDomain())
 		}
 	}
 
@@ -75,8 +75,8 @@ func (entity *Role) FromDomain(domain *domain.Role) {
 	if domain.Permissions != nil {
 		for _, permissionDomain := range domain.Permissions {
 			var permission Permission
-			permission.FromDomain(permissionDomain)
-			entity.Permissions = append(entity.Permissions, &permission)
+			permission.FromDomain(&permissionDomain)
+			entity.Permissions = append(entity.Permissions, permission)
 		}
 	}
 }

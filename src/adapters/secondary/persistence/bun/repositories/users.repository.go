@@ -8,26 +8,26 @@ import (
 	"github.com/google/uuid"
 	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
-	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/core/domain"
 	"github.com/uptrace/bun"
 )
 
 type UsersRepository struct {
-	dbAdapter *bunPersistence.BunAdapter
+	persistenceAdapter *bunPersistence.BunAdapter
 }
 
 type UsersRepositoryDeps struct {
-	DBAdapter *bunPersistence.BunAdapter
+	PersistenceAdapter *bunPersistence.BunAdapter
 }
 
 func NewUsersRepository(deps *UsersRepositoryDeps) domain.IUsersRepository {
 	return &UsersRepository{
-		dbAdapter: deps.DBAdapter,
+		persistenceAdapter: deps.PersistenceAdapter,
 	}
 }
 
 func (repository *UsersRepository) FindMany(ctx context.Context, skip int, limit int) ([]*domain.User, error) {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var userList []*entities.User
 	err := db.NewSelect().
@@ -53,7 +53,7 @@ func (repository *UsersRepository) FindMany(ctx context.Context, skip int, limit
 }
 
 func (repository *UsersRepository) CreateOne(ctx context.Context, domainUser *domain.User) (*domain.User, error) {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var user entities.User
 	user.FromDomain(domainUser)
@@ -68,7 +68,7 @@ func (repository *UsersRepository) CreateOne(ctx context.Context, domainUser *do
 }
 
 func (repository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var user entities.User
 
@@ -91,7 +91,7 @@ func (repository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUID
 }
 
 func (repository *UsersRepository) DeleteOne(ctx context.Context, id uuid.UUID) error {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	_, err := db.NewDelete().
 		Model((*entities.User)(nil)).
@@ -102,7 +102,7 @@ func (repository *UsersRepository) DeleteOne(ctx context.Context, id uuid.UUID) 
 }
 
 func (repository *UsersRepository) UpdateOne(ctx context.Context, user *domain.User) (*domain.User, error) {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityUser entities.User
 	entityUser.FromDomain(user)

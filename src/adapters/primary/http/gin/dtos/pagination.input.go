@@ -1,6 +1,6 @@
 package dtos
 
-import "github.com/lautarok/hexa/src/application/ports"
+import "github.com/lautarok/hexa/src/core/ports"
 
 type PaginationInputDto struct {
 	Page  int `form:"page" validate:"min=1,max=9999"`

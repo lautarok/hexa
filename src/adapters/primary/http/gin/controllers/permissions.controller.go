@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
-	"github.com/lautarok/hexa/src/application/errors"
-	"github.com/lautarok/hexa/src/application/ports"
-	permissionsQuery "github.com/lautarok/hexa/src/application/usecases/permissions/query"
+	"github.com/lautarok/hexa/src/core/errors"
+	"github.com/lautarok/hexa/src/core/ports"
+	permissionsQuery "github.com/lautarok/hexa/src/core/usecases/permissions/query"
 )
 
 type PermissionsController struct {

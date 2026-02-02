@@ -1,6 +1,6 @@
 package dtos
 
-import "github.com/lautarok/hexa/src/application/domain"
+import "github.com/lautarok/hexa/src/core/domain"
 
 type RoleListOutputDto struct {
 	PaginationOutputDto *PaginationOutputDto `json:"pagination"`

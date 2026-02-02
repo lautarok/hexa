@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
-	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/core/domain"
 )
 
 type ErrorMiddleware struct{}

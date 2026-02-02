@@ -3,7 +3,7 @@ package dtos
 import (
 	"strings"
 
-	"github.com/lautarok/hexa/src/application/ports"
+	"github.com/lautarok/hexa/src/core/ports"
 )
 
 type SignupInputDto struct {

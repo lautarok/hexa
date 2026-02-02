@@ -1,8 +1,8 @@
 package dtos
 
 import (
-	"github.com/lautarok/hexa/src/application/ports"
-	rolesCommand "github.com/lautarok/hexa/src/application/usecases/roles/command"
+	"github.com/lautarok/hexa/src/core/ports"
+	rolesCommand "github.com/lautarok/hexa/src/core/usecases/roles/command"
 )
 
 type PermissionAliasInputDto struct {

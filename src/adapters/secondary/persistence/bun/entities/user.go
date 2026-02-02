@@ -5,19 +5,19 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/core/domain"
 	"github.com/uptrace/bun"
 )
 
 type User struct {
-	ID         uuid.UUID   `bun:"id,type:uuid,pk,default:gen_random_uuid()"`
-	Name       string      `bun:"name,notnull,nullzero,type:varchar(40)"`
-	Surname    string      `bun:"surname,notnull,nullzero,type:varchar(40)"`
-	RoleID     uuid.UUID   `bun:"role_id,type:uuid,notnull"`
-	Role       *Role       `bun:"rel:belongs-to,join:role_id=id,on_delete:CASCADE"`
-	Credential *Credential `bun:"rel:has-one,join:id=user_id"`
-	CreatedAt  time.Time   `bun:"created_at,type:timestamp,notnull,nullzero,default:current_timestamp"`
-	UpdatedAt  time.Time   `bun:"updated_at,type:timestamp,notnull,nullzero,default:current_timestamp"`
+	ID         uuid.UUID  `bun:"id,type:uuid,pk,default:gen_random_uuid()"`
+	Name       string     `bun:"name,notnull,nullzero,type:varchar(40)"`
+	Surname    string     `bun:"surname,notnull,nullzero,type:varchar(40)"`
+	RoleID     uuid.UUID  `bun:"role_id,type:uuid,notnull"`
+	Role       Role       `bun:"rel:belongs-to,join:role_id=id,on_delete:cascade"`
+	Credential Credential `bun:"rel:has-one,join:id=user_id"`
+	CreatedAt  time.Time  `bun:"created_at,type:timestamp,notnull,nullzero,default:current_timestamp"`
+	UpdatedAt  time.Time  `bun:"updated_at,type:timestamp,notnull,nullzero,default:current_timestamp"`
 }
 
 func (entity *User) BeforeUpdate(ctx context.Context, query bun.Query) error {
@@ -34,13 +34,8 @@ func (entity *User) ToDomain() *domain.User {
 		UpdatedAt: entity.UpdatedAt,
 	}
 
-	if entity.Role != nil {
-		user.Role = entity.Role.ToDomain()
-	}
-
-	if entity.Credential != nil {
-		user.Credential = entity.Credential.ToDomain()
-	}
+	user.Role = *entity.Role.ToDomain()
+	user.Credential = *entity.Credential.ToDomain()
 
 	return user
 }
@@ -52,16 +47,12 @@ func (entity *User) FromDomain(domain *domain.User) {
 	entity.CreatedAt = domain.CreatedAt
 	entity.UpdatedAt = domain.UpdatedAt
 
-	if domain.Role != nil {
-		var role Role
-		role.FromDomain(domain.Role)
-		entity.Role = &role
-		entity.RoleID = entity.Role.ID
-	}
+	var role Role
+	role.FromDomain(&domain.Role)
+	entity.Role = role
+	entity.RoleID = entity.Role.ID
 
-	if domain.Credential != nil {
-		var credential Credential
-		credential.FromDomain(domain.Credential)
-		entity.Credential = &credential
-	}
+	var credential Credential
+	credential.FromDomain(&domain.Credential)
+	entity.Credential = credential
 }

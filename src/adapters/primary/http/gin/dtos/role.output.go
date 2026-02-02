@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/core/domain"
 )
 
 type RoleOutputDto struct {
@@ -33,7 +33,7 @@ func NewRoleOutputDto(domainRole *domain.Role) *RoleOutputDto {
 
 	if domainRole.Permissions != nil {
 		for _, permission := range domainRole.Permissions {
-			role.Permissions = append(role.Permissions, NewPermissionOutputDto(permission))
+			role.Permissions = append(role.Permissions, NewPermissionOutputDto(&permission))
 		}
 	}
 

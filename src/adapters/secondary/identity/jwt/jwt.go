@@ -6,8 +6,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/application/domain"
-	"github.com/lautarok/hexa/src/application/ports"
+	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/core/ports"
 )
 
 type JWTAdapter struct {

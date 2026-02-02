@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/core/domain"
 )
 
 type UserOutputDto struct {
@@ -24,13 +24,8 @@ func NewUserOutputDto(domainUser *domain.User) *UserOutputDto {
 		CreatedAt: domainUser.CreatedAt,
 	}
 
-	if domainUser.Credential != nil {
-		user.Credential = NewCredentialOutputDto(domainUser.Credential)
-	}
-
-	if domainUser.Role != nil {
-		user.Role = NewRoleOutputDto(domainUser.Role)
-	}
+	user.Credential = NewCredentialOutputDto(&domainUser.Credential)
+	user.Role = NewRoleOutputDto(&domainUser.Role)
 
 	return user
 }

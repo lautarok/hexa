@@ -1,6 +1,6 @@
 package dtos
 
-import "github.com/lautarok/hexa/src/application/domain"
+import "github.com/lautarok/hexa/src/core/domain"
 
 type TokenOutputDto struct {
 	Token string        `json:"token"`

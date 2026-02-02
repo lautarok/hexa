@@ -9,22 +9,24 @@ import (
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/controllers"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/middlewares"
-	"github.com/lautarok/hexa/src/adapters/secondary/config"
+	"github.com/lautarok/hexa/src/adapters/secondary/config/godotenv"
 	"github.com/lautarok/hexa/src/adapters/secondary/identity/jwt"
+	"github.com/lautarok/hexa/src/adapters/secondary/oauth2/google"
 	"github.com/lautarok/hexa/src/adapters/secondary/password/bcrypt"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/repositories"
 	"github.com/lautarok/hexa/src/adapters/secondary/validation/validator"
-	authCommand "github.com/lautarok/hexa/src/application/usecases/auth/command"
-	authQuery "github.com/lautarok/hexa/src/application/usecases/auth/query"
-	permimssionsQuery "github.com/lautarok/hexa/src/application/usecases/permissions/query"
-	rolesCommand "github.com/lautarok/hexa/src/application/usecases/roles/command"
-	rolesQuery "github.com/lautarok/hexa/src/application/usecases/roles/query"
-	usersQuery "github.com/lautarok/hexa/src/application/usecases/users/query"
+	authCommand "github.com/lautarok/hexa/src/core/usecases/auth/command"
+	authQuery "github.com/lautarok/hexa/src/core/usecases/auth/query"
+	oauth2Query "github.com/lautarok/hexa/src/core/usecases/oauth2/query"
+	permimssionsQuery "github.com/lautarok/hexa/src/core/usecases/permissions/query"
+	rolesCommand "github.com/lautarok/hexa/src/core/usecases/roles/command"
+	rolesQuery "github.com/lautarok/hexa/src/core/usecases/roles/query"
+	usersQuery "github.com/lautarok/hexa/src/core/usecases/users/query"
 )
 
 func main() {
-	envAdapter := config.NewGodotEnvAdapter()
+	envAdapter := godotenv.NewGodotEnvAdapter()
 	if err := envAdapter.Load(); err != nil {
 		log.Fatalf("Error loading environment variables: %v", err)
 	}
@@ -36,27 +38,27 @@ func main() {
 		environment = "DEV"
 	}
 
-	AllowOrigins, err := envAdapter.GetStr("ALLOW_ORIGINS")
+	AllowOrigins, err := envAdapter.GetStr("HTTP_ALLOW_ORIGINS")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	AllowMethods, err := envAdapter.GetStr("ALLOW_METHODS")
+	AllowMethods, err := envAdapter.GetStr("HTTP_ALLOW_METHODS")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	AllowHeaders, err := envAdapter.GetStr("ALLOW_HEADERS")
+	AllowHeaders, err := envAdapter.GetStr("HTTP_ALLOW_HEADERS")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	AllowCredentials, err := envAdapter.GetStr("ALLOW_CREDENTIALS")
+	AllowCredentials, err := envAdapter.GetStr("HTTP_ALLOW_CREDENTIALS")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	MaxAgeStr, err := envAdapter.GetStr("MAX_AGE_HOURS")
+	MaxAgeStr, err := envAdapter.GetStr("HTTP_MAX_AGE")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -101,17 +103,35 @@ func main() {
 		Secret: jwtSecret,
 	})
 
+	googleOauth2ClientId, err := envAdapter.GetStr("OAUTH2_GOOGLE_CLIENT_ID")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	googleOauth2ClientSecret, err := envAdapter.GetStr("OAUTH2_GOOGLE_CLIENT_SECRET")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	googleOauth2RedirectUrl, err := envAdapter.GetStr("OAUTH2_GOOGLE_REDIRECT_URL")
+
+	googleOauth2Adapter := google.NewGoogleOauth2Adapter(&google.GoogleOauth2AdapterDeps{
+		ClientID:     googleOauth2ClientId,
+		ClientSecret: googleOauth2ClientSecret,
+		RedirectURL:  googleOauth2RedirectUrl,
+	})
+
 	usersRepository := repositories.NewUsersRepository(&repositories.UsersRepositoryDeps{
-		DBAdapter: persistenceAdapter,
+		PersistenceAdapter: persistenceAdapter,
 	})
 	credentialsRepository := repositories.NewCredentialsRepository(&repositories.CredentialsRepositoryDeps{
-		DBAdapter: persistenceAdapter,
+		PersistenceAdapter: persistenceAdapter,
 	})
 	rolesRepository := repositories.NewRolesRepository(&repositories.RolesRepositoryDeps{
-		DBAdapter: persistenceAdapter,
+		PersistenceAdapter: persistenceAdapter,
 	})
 	permissionsRepository := repositories.NewPermissionsRepository(&repositories.PermissionsRepositoryDeps{
-		DBAdapter: persistenceAdapter,
+		PersistenceAdapter: persistenceAdapter,
 	})
 
 	getUsersUsecase := usersQuery.NewGetUsersUsecase(&usersQuery.GetUsersUsecaseDeps{
@@ -127,6 +147,8 @@ func main() {
 	})
 	loginUsecase := authCommand.NewLoginUsecase(&authCommand.LoginUsecaseDeps{
 		CredentialsRepository: credentialsRepository,
+		UsersRepository:       usersRepository,
+		PersistenceAdapter:    persistenceAdapter,
 		IdentityAdapter:       identityAdapter,
 		PasswordAdapter:       passwordAdapter,
 	})
@@ -145,6 +167,12 @@ func main() {
 	})
 	getPermissionsUsecase := permimssionsQuery.NewGetPermissionsUsecase(&permimssionsQuery.GetPermissionsUsecaseDeps{
 		PermissionsRepository: permissionsRepository,
+	})
+	getGoogleOauth2UrlUsecase := oauth2Query.NewGetGoogleOAuth2URLUsecase(&oauth2Query.GetGoogleOAuth2URLUsecaseDeps{
+		GoogleOAuth2Adapter: googleOauth2Adapter,
+	})
+	getGoogleOauth2UserUsecase := oauth2Query.NewGetGoogleOAuth2UserUsecase(&oauth2Query.GetGoogleOAuth2UserUsecaseDeps{
+		GoogleOAuth2Adapter: googleOauth2Adapter,
 	})
 
 	authMiddleware := middlewares.NewAuthMiddleware(&middlewares.AuthMiddlewareDeps{
@@ -171,6 +199,11 @@ func main() {
 		GetPermissionsUsecase: getPermissionsUsecase,
 		Validation:            validationAdapter,
 	})
+	oauth2Controller := controllers.NewOAuth2Controller(&controllers.OAuth2ControllerDeps{
+		GetGoogleOAuth2UrlUsecase:  getGoogleOauth2UrlUsecase,
+		GetGoogleOAuth2UserUsecase: getGoogleOauth2UserUsecase,
+		Validation:                 validationAdapter,
+	})
 
 	httpAdapter.RegisterControllers(
 		healthController,
@@ -178,6 +211,7 @@ func main() {
 		authController,
 		rolesController,
 		permissionsController,
+		oauth2Controller,
 	)
 
 	httpPort, err := envAdapter.GetStr("HTTP_PORT")

@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/middlewares"
-	"github.com/lautarok/hexa/src/application/domain"
-	"github.com/lautarok/hexa/src/application/errors"
-	"github.com/lautarok/hexa/src/application/ports"
-	authCommand "github.com/lautarok/hexa/src/application/usecases/auth/command"
+	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/core/errors"
+	"github.com/lautarok/hexa/src/core/ports"
+	authCommand "github.com/lautarok/hexa/src/core/usecases/auth/command"
 )
 
 type AuthController struct {

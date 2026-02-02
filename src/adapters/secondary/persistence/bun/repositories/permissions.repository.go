@@ -5,26 +5,26 @@ import (
 
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
-	"github.com/lautarok/hexa/src/application/domain"
+	"github.com/lautarok/hexa/src/core/domain"
 	bunInfra "github.com/uptrace/bun"
 )
 
 type PermissionsRepository struct {
-	dbAdapter *bun.BunAdapter
+	persistenceAdapter *bun.BunAdapter
 }
 
 type PermissionsRepositoryDeps struct {
-	DBAdapter *bun.BunAdapter
+	PersistenceAdapter *bun.BunAdapter
 }
 
 func NewPermissionsRepository(deps *PermissionsRepositoryDeps) domain.IPermissionsRepository {
 	return &PermissionsRepository{
-		dbAdapter: deps.DBAdapter,
+		persistenceAdapter: deps.PersistenceAdapter,
 	}
 }
 
 func (repository *PermissionsRepository) FindMany(ctx context.Context, skip int, limit int) ([]*domain.Permission, error) {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityPermissions []*entities.Permission
 	err := db.NewSelect().
@@ -46,7 +46,7 @@ func (repository *PermissionsRepository) FindMany(ctx context.Context, skip int,
 }
 
 func (repository *PermissionsRepository) FindManyByAlias(ctx context.Context, aliases ...string) ([]*domain.Permission, error) {
-	db := repository.dbAdapter.GetDB(ctx)
+	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityPermissions []*entities.Permission
 	err := db.NewSelect().

@@ -3,6 +3,7 @@ package bun
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"strings"
 
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
@@ -58,4 +59,8 @@ func (adapter *BunAdapter) Transaction(
 
 func (adapter *BunAdapter) IsUniqueViolation(err error) bool {
 	return strings.Contains(err.Error(), "23505")
+}
+
+func (adapter *BunAdapter) IsErrNotFound(err error) bool {
+	return errors.Is(err, sql.ErrNoRows)
 }

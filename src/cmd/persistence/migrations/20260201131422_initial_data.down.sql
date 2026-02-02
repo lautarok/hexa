@@ -2,11 +2,11 @@ SET statement_timeout = 0;
 
 --bun:split
 
-TRUNCATE TABLE credentials;
-TRUNCATE TABLE users;
-TRUNCATE TABLE permissions;
-TRUNCATE TABLE role_permissions;
-TRUNCATE TABLE roles;
+DELETE FROM credentials;
+DELETE FROM users;
+DELETE FROM role_permissions;
+DELETE FROM roles;
+DELETE FROM permissions;
 
 --bun:split
 

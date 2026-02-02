@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/lautarok/hexa/src/adapters/secondary/config"
+	"github.com/lautarok/hexa/src/adapters/secondary/config/godotenv"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/cmd/persistence/migrations"
 	"github.com/uptrace/bun/extra/bundebug"
@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	env := config.NewGodotEnvAdapter()
+	env := godotenv.NewGodotEnvAdapter()
 	env.Load()
 
 	app := &cli.App{
@@ -92,6 +92,12 @@ func newDBCommand(migrations *migrate.Migrations) *cli.Command {
 					})
 					ctx := context.Background()
 					database := persistenceAdapter.GetDB(ctx).(*bunInfra.DB)
+
+					database.AddQueryHook(
+						bundebug.NewQueryHook(
+							bundebug.WithVerbose(true),
+						),
+					)
 
 					migrator := migrate.NewMigrator(database, migrations)
 
