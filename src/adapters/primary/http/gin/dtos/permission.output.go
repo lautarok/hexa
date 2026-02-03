@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 )
 
 type PermissionOutputDto struct {
@@ -13,10 +13,10 @@ type PermissionOutputDto struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-func NewPermissionOutputDto(domainPermission *domain.Permission) *PermissionOutputDto {
+func NewPermissionOutputDto(permissionModel *models.Permission) *PermissionOutputDto {
 	return &PermissionOutputDto{
-		ID:        domainPermission.ID,
-		Alias:     domainPermission.Alias,
-		CreatedAt: domainPermission.CreatedAt,
+		ID:        permissionModel.ID,
+		Alias:     permissionModel.Alias,
+		CreatedAt: permissionModel.CreatedAt,
 	}
 }

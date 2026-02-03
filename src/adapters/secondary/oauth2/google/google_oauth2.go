@@ -6,8 +6,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/lautarok/hexa/src/core/ports"
-	"github.com/lautarok/hexa/src/core/ports/dtos"
+	"github.com/lautarok/hexa/src/domain/ports"
+	"github.com/lautarok/hexa/src/domain/ports/dtos"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -34,12 +34,18 @@ func NewGoogleOauth2Adapter(deps *GoogleOauth2AdapterDeps) ports.GoogleOAuth2Por
 	}
 }
 
-func (adapter *GoogleOauth2Adapter) GetLoginURL(ctx context.Context) string {
-	return adapter.config.AuthCodeURL("state")
+func (adapter *GoogleOauth2Adapter) GetLoginURL(ctx context.Context, locale string) string {
+	config := *adapter.config
+	config.RedirectURL = strings.Replace(adapter.config.RedirectURL, ":locale", locale, 1)
+
+	return config.AuthCodeURL("state")
 }
 
-func (adapter *GoogleOauth2Adapter) HandleCallback(ctx context.Context, code string) (*dtos.GoogleIdentityDto, error) {
-	oauth2Token, err := adapter.config.Exchange(ctx, code)
+func (adapter *GoogleOauth2Adapter) HandleCallback(ctx context.Context, locale string, code string) (*dtos.GoogleIdentityDto, error) {
+	config := *adapter.config
+	config.RedirectURL = strings.Replace(adapter.config.RedirectURL, ":locale", locale, 1)
+
+	oauth2Token, err := config.Exchange(ctx, code)
 	if err != nil {
 		return nil, err
 	}

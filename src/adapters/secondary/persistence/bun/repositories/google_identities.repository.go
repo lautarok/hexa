@@ -5,7 +5,7 @@ import (
 
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 )
 
 type GoogleIdentitiesRepository struct {
@@ -16,43 +16,40 @@ type GoogleIdentitiesRepositoryDeps struct {
 	PersistenceAdapter *bun.BunAdapter
 }
 
-func NewGoogleIdentitiesRepository(deps *GoogleIdentitiesRepositoryDeps) domain.IGoogleIdentitiesRepository {
+func NewGoogleIdentitiesRepository(deps *GoogleIdentitiesRepositoryDeps) models.IGoogleIdentitiesRepository {
 	return &GoogleIdentitiesRepository{
 		persistenceAdapter: deps.PersistenceAdapter,
 	}
 }
 
-func (repository *GoogleIdentitiesRepository) FindOneByGoogleID(ctx context.Context, googleId string) (*domain.GoogleIdentity, error) {
+func (repository *GoogleIdentitiesRepository) FindOneByGoogleID(ctx context.Context, googleId string) (*models.GoogleIdentity, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
-	var googleIdentity *domain.GoogleIdentity
+	var googleIdentity models.GoogleIdentity
 
 	err := db.
 		NewSelect().
 		Model(&googleIdentity).
 		Where("google_id = ?", googleId).
-		Relation("User").
-		Relation("User.Credential").
-		Relation("User.Role").
-		Relation("User.Role.Permissions").
 		Scan(ctx)
 
-	return googleIdentity, err
+	return &googleIdentity, err
 }
 
-func (repository *GoogleIdentitiesRepository) CreateOne(ctx context.Context, googleIdentity *domain.GoogleIdentity) error {
+func (repository *GoogleIdentitiesRepository) CreateOne(ctx context.Context, googleIdentity *models.GoogleIdentity) (*models.GoogleIdentity, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
-	var entity *entities.GoogleIdentity
-	entity.FromDomain(googleIdentity)
+	entity := entities.GoogleIdentity{}
+	entity.FromDomainModel(googleIdentity)
 
-	_, err := db.
+	err := db.
 		NewInsert().
 		Model(&entity).
-		Exec(ctx)
+		Returning("*").
+		Scan(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return entity.ToDomainModel(), nil
 }

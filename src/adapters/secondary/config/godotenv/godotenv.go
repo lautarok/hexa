@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/lautarok/hexa/src/core/ports"
+	"github.com/lautarok/hexa/src/domain/ports"
 )
 
 type GodotEnvAdapter struct{}

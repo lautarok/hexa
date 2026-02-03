@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 )
 
 type ErrorMiddleware struct{}
@@ -32,7 +32,7 @@ func (middleware *ErrorMiddleware) HandleErrors(ctx *gin.Context) {
 
 	lastError := ctx.Errors.Last().Err
 	if lastError != nil {
-		appError, ok := lastError.(*domain.AppError)
+		appError, ok := lastError.(*models.AppError)
 
 		if !ok {
 			sendInternalError(ctx)

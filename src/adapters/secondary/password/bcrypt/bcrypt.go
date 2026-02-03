@@ -1,7 +1,7 @@
 package bcrypt
 
 import (
-	"github.com/lautarok/hexa/src/core/ports"
+	"github.com/lautarok/hexa/src/domain/ports"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 )
 
 type UserOutputDto struct {
@@ -16,16 +16,16 @@ type UserOutputDto struct {
 	Role       *RoleOutputDto       `json:"role"`
 }
 
-func NewUserOutputDto(domainUser *domain.User) *UserOutputDto {
+func NewUserOutputDto(userModel *models.User) *UserOutputDto {
 	user := &UserOutputDto{
-		ID:        domainUser.ID,
-		Name:      domainUser.Name,
-		Surname:   domainUser.Surname,
-		CreatedAt: domainUser.CreatedAt,
+		ID:        userModel.ID,
+		Name:      userModel.Name,
+		Surname:   userModel.Surname,
+		CreatedAt: userModel.CreatedAt,
 	}
 
-	user.Credential = NewCredentialOutputDto(&domainUser.Credential)
-	user.Role = NewRoleOutputDto(&domainUser.Role)
+	user.Credential = NewCredentialOutputDto(&userModel.Credential)
+	user.Role = NewRoleOutputDto(&userModel.Role)
 
 	return user
 }

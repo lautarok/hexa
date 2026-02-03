@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 )
 
 type RoleOutputDto struct {
@@ -19,20 +19,20 @@ type RoleOutputDto struct {
 	UpdatedAt   time.Time              `json:"updatedAt"`
 }
 
-func NewRoleOutputDto(domainRole *domain.Role) *RoleOutputDto {
+func NewRoleOutputDto(roleModel *models.Role) *RoleOutputDto {
 	role := &RoleOutputDto{
-		ID:        domainRole.ID,
-		NameEn:    domainRole.NameEn,
-		NameEs:    domainRole.NameEs,
-		NameFr:    domainRole.NameFr,
-		NamePt:    domainRole.NamePt,
-		NameNl:    domainRole.NameNl,
-		CreatedAt: domainRole.CreatedAt,
-		UpdatedAt: domainRole.UpdatedAt,
+		ID:        roleModel.ID,
+		NameEn:    roleModel.NameEn,
+		NameEs:    roleModel.NameEs,
+		NameFr:    roleModel.NameFr,
+		NamePt:    roleModel.NamePt,
+		NameNl:    roleModel.NameNl,
+		CreatedAt: roleModel.CreatedAt,
+		UpdatedAt: roleModel.UpdatedAt,
 	}
 
-	if domainRole.Permissions != nil {
-		for _, permission := range domainRole.Permissions {
+	if roleModel.Permissions != nil {
+		for _, permission := range roleModel.Permissions {
 			role.Permissions = append(role.Permissions, NewPermissionOutputDto(&permission))
 		}
 	}

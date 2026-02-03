@@ -4,28 +4,30 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lautarok/hexa/src/core/errors"
-	"github.com/lautarok/hexa/src/core/ports"
-	"github.com/lautarok/hexa/src/core/usecases/oauth2/query"
+	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
+	"github.com/lautarok/hexa/src/application/usecases/oauth2/command"
+	"github.com/lautarok/hexa/src/application/usecases/oauth2/query"
+	"github.com/lautarok/hexa/src/domain/errors"
+	"github.com/lautarok/hexa/src/domain/ports"
 )
 
 type OAuth2Controller struct {
-	getGoogleOauth2UrlUsecase  *query.GetGoogleOAuth2URLUsecase
-	getGoogleOauth2UserUsecase *query.GetGoogleOAuth2UserUsecase
-	validation                 ports.ValidationPort
+	getGoogleSignOnUrlUsecase *query.GetGoogleSignOnURLUsecase
+	googleSignOnUsecase       *command.GoogleSignOnUsecase
+	validation                ports.ValidationPort
 }
 
 type OAuth2ControllerDeps struct {
-	GetGoogleOAuth2UrlUsecase  *query.GetGoogleOAuth2URLUsecase
-	GetGoogleOAuth2UserUsecase *query.GetGoogleOAuth2UserUsecase
-	Validation                 ports.ValidationPort
+	GetGoogleSignOnURLUsecase *query.GetGoogleSignOnURLUsecase
+	GoogleSignOnUsecase       *command.GoogleSignOnUsecase
+	Validation                ports.ValidationPort
 }
 
 func NewOAuth2Controller(deps *OAuth2ControllerDeps) *OAuth2Controller {
 	return &OAuth2Controller{
-		getGoogleOauth2UrlUsecase:  deps.GetGoogleOAuth2UrlUsecase,
-		getGoogleOauth2UserUsecase: deps.GetGoogleOAuth2UserUsecase,
-		validation:                 deps.Validation,
+		getGoogleSignOnUrlUsecase: deps.GetGoogleSignOnURLUsecase,
+		googleSignOnUsecase:       deps.GoogleSignOnUsecase,
+		validation:                deps.Validation,
 	}
 }
 
@@ -36,19 +38,44 @@ func (controller *OAuth2Controller) Name() string {
 func (controller *OAuth2Controller) Register(router *gin.RouterGroup) {
 	group := router.Group(controller.Name())
 	group.GET("google-url", controller.GetGoogleURL)
-	group.GET("test", controller.GetGoogleCallback)
+	group.POST("google-sign-on", controller.GoogleSignOn)
 }
 
 func (controller *OAuth2Controller) GetGoogleURL(ctx *gin.Context) {
-	googleAuthUrl := controller.getGoogleOauth2UrlUsecase.GetGoogleAuthURL(ctx)
-	ctx.String(http.StatusOK, googleAuthUrl)
+	type localeDto struct {
+		Locale string `form:"locale" validate:"required"`
+	}
+	queryDto := localeDto{}
+	ctx.ShouldBindQuery(&queryDto)
+	if err := controller.validation.Struct(&queryDto); err != nil {
+		ctx.Error(
+			errors.NewInvalidInputError(err.Error()),
+		)
+		return
+	}
+	googleAuthUrl := controller.getGoogleSignOnUrlUsecase.GetGoogleAuthURL(ctx, queryDto.Locale)
+	ctx.JSON(http.StatusOK, &dtos.URLOutputDto{
+		URL: googleAuthUrl,
+	})
 }
 
-func (controller *OAuth2Controller) GetGoogleCallback(ctx *gin.Context) {
+func (controller *OAuth2Controller) GoogleSignOn(ctx *gin.Context) {
 	type codeDto struct {
-		Code string `form:"code" validate:"required"`
+		Code string `json:"code" validate:"required"`
 	}
-	queryDto := codeDto{}
+	bodyDto := codeDto{}
+	ctx.ShouldBindJSON(&bodyDto)
+	if err := controller.validation.Struct(&bodyDto); err != nil {
+		ctx.Error(
+			errors.NewInvalidInputError(err.Error()),
+		)
+		return
+	}
+
+	type localeDto struct {
+		Locale string `form:"locale" validate:"required"`
+	}
+	queryDto := localeDto{}
 	ctx.ShouldBindQuery(&queryDto)
 	if err := controller.validation.Struct(&queryDto); err != nil {
 		ctx.Error(
@@ -57,11 +84,17 @@ func (controller *OAuth2Controller) GetGoogleCallback(ctx *gin.Context) {
 		return
 	}
 
-	googleCallback, appErr := controller.getGoogleOauth2UserUsecase.GetGoogleUser(ctx, queryDto.Code)
+	googleSignOn, appErr := controller.googleSignOnUsecase.GoogleSignOn(
+		ctx, queryDto.Locale, bodyDto.Code,
+	)
 	if appErr != nil {
 		ctx.Error(appErr)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, googleCallback)
+	ctx.JSON(http.StatusOK, dtos.NewTokenOutputDto(
+		googleSignOn.Token,
+		googleSignOn.Exp,
+		googleSignOn.User,
+	))
 }

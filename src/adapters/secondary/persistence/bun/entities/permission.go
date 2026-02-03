@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 	"github.com/uptrace/bun"
 )
 
@@ -22,8 +22,8 @@ func (entity *Permission) BeforeUpdate(ctx context.Context, query bun.Query) err
 	return nil
 }
 
-func (entity *Permission) ToDomain() *domain.Permission {
-	permission := &domain.Permission{
+func (entity *Permission) ToDomainModel() *models.Permission {
+	permission := &models.Permission{
 		ID:        entity.ID,
 		Alias:     entity.Alias,
 		CreatedAt: entity.CreatedAt,
@@ -32,23 +32,23 @@ func (entity *Permission) ToDomain() *domain.Permission {
 
 	if entity.Roles != nil {
 		for _, role := range entity.Roles {
-			permission.Roles = append(permission.Roles, role.ToDomain())
+			permission.Roles = append(permission.Roles, role.ToDomainModel())
 		}
 	}
 
 	return permission
 }
 
-func (entity *Permission) FromDomain(domain *domain.Permission) {
-	entity.ID = domain.ID
-	entity.Alias = domain.Alias
-	entity.CreatedAt = domain.CreatedAt
-	entity.UpdatedAt = domain.UpdatedAt
+func (entity *Permission) FromDomainModel(model *models.Permission) {
+	entity.ID = model.ID
+	entity.Alias = model.Alias
+	entity.CreatedAt = model.CreatedAt
+	entity.UpdatedAt = model.UpdatedAt
 
-	if domain.Roles != nil {
-		for _, roleDomain := range domain.Roles {
+	if model.Roles != nil {
+		for _, roleDomain := range model.Roles {
 			var role Role
-			role.FromDomain(roleDomain)
+			role.FromDomainModel(roleDomain)
 			entity.Roles = append(entity.Roles, &role)
 		}
 	}

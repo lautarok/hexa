@@ -16,13 +16,14 @@ import (
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/repositories"
 	"github.com/lautarok/hexa/src/adapters/secondary/validation/validator"
-	authCommand "github.com/lautarok/hexa/src/core/usecases/auth/command"
-	authQuery "github.com/lautarok/hexa/src/core/usecases/auth/query"
-	oauth2Query "github.com/lautarok/hexa/src/core/usecases/oauth2/query"
-	permimssionsQuery "github.com/lautarok/hexa/src/core/usecases/permissions/query"
-	rolesCommand "github.com/lautarok/hexa/src/core/usecases/roles/command"
-	rolesQuery "github.com/lautarok/hexa/src/core/usecases/roles/query"
-	usersQuery "github.com/lautarok/hexa/src/core/usecases/users/query"
+	authCommand "github.com/lautarok/hexa/src/application/usecases/auth/command"
+	authQuery "github.com/lautarok/hexa/src/application/usecases/auth/query"
+	oauth2Command "github.com/lautarok/hexa/src/application/usecases/oauth2/command"
+	oauth2Query "github.com/lautarok/hexa/src/application/usecases/oauth2/query"
+	permimssionsQuery "github.com/lautarok/hexa/src/application/usecases/permissions/query"
+	rolesCommand "github.com/lautarok/hexa/src/application/usecases/roles/command"
+	rolesQuery "github.com/lautarok/hexa/src/application/usecases/roles/query"
+	usersQuery "github.com/lautarok/hexa/src/application/usecases/users/query"
 )
 
 func main() {
@@ -133,6 +134,9 @@ func main() {
 	permissionsRepository := repositories.NewPermissionsRepository(&repositories.PermissionsRepositoryDeps{
 		PersistenceAdapter: persistenceAdapter,
 	})
+	googleIdentitiesRepository := repositories.NewGoogleIdentitiesRepository(&repositories.GoogleIdentitiesRepositoryDeps{
+		PersistenceAdapter: persistenceAdapter,
+	})
 
 	getUsersUsecase := usersQuery.NewGetUsersUsecase(&usersQuery.GetUsersUsecaseDeps{
 		UsersRepository: usersRepository,
@@ -168,11 +172,17 @@ func main() {
 	getPermissionsUsecase := permimssionsQuery.NewGetPermissionsUsecase(&permimssionsQuery.GetPermissionsUsecaseDeps{
 		PermissionsRepository: permissionsRepository,
 	})
-	getGoogleOauth2UrlUsecase := oauth2Query.NewGetGoogleOAuth2URLUsecase(&oauth2Query.GetGoogleOAuth2URLUsecaseDeps{
+	getGoogleSignOnUrlUsecase := oauth2Query.NewGetGoogleSignOnURLUsecase(&oauth2Query.GetGoogleSignOnURLUsecaseDeps{
 		GoogleOAuth2Adapter: googleOauth2Adapter,
 	})
-	getGoogleOauth2UserUsecase := oauth2Query.NewGetGoogleOAuth2UserUsecase(&oauth2Query.GetGoogleOAuth2UserUsecaseDeps{
-		GoogleOAuth2Adapter: googleOauth2Adapter,
+	googleSignOnUsecase := oauth2Command.NewGoogleSignOnUsecase(&oauth2Command.GoogleSignOnUsecaseDeps{
+		UsersRepository:            usersRepository,
+		RolesRepository:            rolesRepository,
+		CredentialsRepository:      credentialsRepository,
+		GoogleIdentitiesRepository: googleIdentitiesRepository,
+		PersistenceAdapter:         persistenceAdapter,
+		GoogleOAuth2Adapter:        googleOauth2Adapter,
+		IdentityAdapter:            identityAdapter,
 	})
 
 	authMiddleware := middlewares.NewAuthMiddleware(&middlewares.AuthMiddlewareDeps{
@@ -200,9 +210,9 @@ func main() {
 		Validation:            validationAdapter,
 	})
 	oauth2Controller := controllers.NewOAuth2Controller(&controllers.OAuth2ControllerDeps{
-		GetGoogleOAuth2UrlUsecase:  getGoogleOauth2UrlUsecase,
-		GetGoogleOAuth2UserUsecase: getGoogleOauth2UserUsecase,
-		Validation:                 validationAdapter,
+		GetGoogleSignOnURLUsecase: getGoogleSignOnUrlUsecase,
+		GoogleSignOnUsecase:       googleSignOnUsecase,
+		Validation:                validationAdapter,
 	})
 
 	httpAdapter.RegisterControllers(

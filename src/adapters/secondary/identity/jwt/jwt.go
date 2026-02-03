@@ -6,8 +6,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/core/domain"
-	"github.com/lautarok/hexa/src/core/ports"
+	"github.com/lautarok/hexa/src/domain/models"
+	"github.com/lautarok/hexa/src/domain/ports"
 )
 
 type JWTAdapter struct {
@@ -24,14 +24,12 @@ func NewJWTAdapter(deps *JWTAdapterDeps) ports.IdentityPort {
 	}
 }
 
-func (adapter *JWTAdapter) NewToken(identity *domain.Identity) (string, int64, error) {
+func (adapter *JWTAdapter) NewToken(identity *models.Identity) (string, int64, error) {
 	exp := time.Now().Add(time.Hour * 72).Unix()
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"subUserId": identity.SubUserID,
 		"userId":    identity.UserID,
-		"email":     identity.Email,
-		"username":  identity.Username,
 		"exp":       exp,
 	})
 
@@ -43,7 +41,7 @@ func (adapter *JWTAdapter) NewToken(identity *domain.Identity) (string, int64, e
 	return token, exp, nil
 }
 
-func (adapter *JWTAdapter) ParseToken(token string) (*domain.Identity, error) {
+func (adapter *JWTAdapter) ParseToken(token string) (*models.Identity, error) {
 	jwtToken, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
 		return []byte(adapter.secret), nil
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
@@ -63,11 +61,9 @@ func (adapter *JWTAdapter) ParseToken(token string) (*domain.Identity, error) {
 			return nil, err
 		}
 
-		return &domain.Identity{
+		return &models.Identity{
 			SubUserID: subUserId,
 			UserID:    userId,
-			Email:     claims["email"].(string),
-			Username:  claims["username"].(string),
 		}, nil
 	}
 

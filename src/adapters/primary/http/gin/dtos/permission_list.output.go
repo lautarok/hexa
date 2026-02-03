@@ -1,15 +1,15 @@
 package dtos
 
-import "github.com/lautarok/hexa/src/core/domain"
+import "github.com/lautarok/hexa/src/domain/models"
 
 type PermissionListOutputDto struct {
 	PaginationOutputDto *PaginationOutputDto   `json:"pagination"`
 	Permissions         []*PermissionOutputDto `json:"permissions"`
 }
 
-func NewPermissionListOutputDto(pagination *PaginationInputDto, domainPermissions []*domain.Permission) *PermissionListOutputDto {
+func NewPermissionListOutputDto(pagination *PaginationInputDto, permissionModels []*models.Permission) *PermissionListOutputDto {
 	permissions := []*PermissionOutputDto{}
-	for _, permission := range domainPermissions {
+	for _, permission := range permissionModels {
 		permissions = append(permissions, NewPermissionOutputDto(permission))
 	}
 

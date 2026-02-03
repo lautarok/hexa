@@ -5,7 +5,7 @@ import (
 
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 	bunInfra "github.com/uptrace/bun"
 )
 
@@ -17,13 +17,13 @@ type PermissionsRepositoryDeps struct {
 	PersistenceAdapter *bun.BunAdapter
 }
 
-func NewPermissionsRepository(deps *PermissionsRepositoryDeps) domain.IPermissionsRepository {
+func NewPermissionsRepository(deps *PermissionsRepositoryDeps) models.IPermissionsRepository {
 	return &PermissionsRepository{
 		persistenceAdapter: deps.PersistenceAdapter,
 	}
 }
 
-func (repository *PermissionsRepository) FindMany(ctx context.Context, skip int, limit int) ([]*domain.Permission, error) {
+func (repository *PermissionsRepository) FindMany(ctx context.Context, skip int, limit int) ([]*models.Permission, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityPermissions []*entities.Permission
@@ -37,15 +37,15 @@ func (repository *PermissionsRepository) FindMany(ctx context.Context, skip int,
 		return nil, err
 	}
 
-	domainPermissions := []*domain.Permission{}
+	domainPermissions := []*models.Permission{}
 	for _, permission := range entityPermissions {
-		domainPermissions = append(domainPermissions, permission.ToDomain())
+		domainPermissions = append(domainPermissions, permission.ToDomainModel())
 	}
 
 	return domainPermissions, nil
 }
 
-func (repository *PermissionsRepository) FindManyByAlias(ctx context.Context, aliases ...string) ([]*domain.Permission, error) {
+func (repository *PermissionsRepository) FindManyByAlias(ctx context.Context, aliases ...string) ([]*models.Permission, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityPermissions []*entities.Permission
@@ -57,9 +57,9 @@ func (repository *PermissionsRepository) FindManyByAlias(ctx context.Context, al
 		return nil, err
 	}
 
-	var domainPermissions []*domain.Permission
+	var domainPermissions []*models.Permission
 	for _, permission := range entityPermissions {
-		domainPermissions = append(domainPermissions, permission.ToDomain())
+		domainPermissions = append(domainPermissions, permission.ToDomainModel())
 	}
 
 	return domainPermissions, nil

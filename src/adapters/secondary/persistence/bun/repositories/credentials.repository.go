@@ -5,7 +5,7 @@ import (
 
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 )
 
 type CredentialsRepository struct {
@@ -16,7 +16,7 @@ type CredentialsRepositoryDeps struct {
 	PersistenceAdapter *bun.BunAdapter
 }
 
-func NewCredentialsRepository(deps *CredentialsRepositoryDeps) domain.ICredentialsRepository {
+func NewCredentialsRepository(deps *CredentialsRepositoryDeps) models.ICredentialsRepository {
 	return &CredentialsRepository{
 		persistenceAdapter: deps.PersistenceAdapter,
 	}
@@ -25,7 +25,7 @@ func NewCredentialsRepository(deps *CredentialsRepositoryDeps) domain.ICredentia
 func (repository *CredentialsRepository) FindByUsernameOrEmail(
 	ctx context.Context,
 	usernameOrEmail string,
-) (*domain.Credential, error) {
+) (*models.Credential, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var credential entities.Credential
@@ -38,27 +38,14 @@ func (repository *CredentialsRepository) FindByUsernameOrEmail(
 		return nil, err
 	}
 
-	return credential.ToDomain(), nil
+	return credential.ToDomainModel(), nil
 }
 
-func (repository *CredentialsRepository) UsernameOrEmailExists(
-	ctx context.Context,
-	usernameOrEmail string,
-) (bool, error) {
+func (repository *CredentialsRepository) CreateOne(ctx context.Context, domainCredential *models.Credential) (*models.Credential, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var credential entities.Credential
-	return db.NewSelect().
-		Model(&credential).
-		Where("username = ? OR email = ?", usernameOrEmail).
-		Exists(ctx)
-}
-
-func (repository *CredentialsRepository) CreateOne(ctx context.Context, domainCredential *domain.Credential) (*domain.Credential, error) {
-	db := repository.persistenceAdapter.GetDB(ctx)
-
-	var credential entities.Credential
-	credential.FromDomain(domainCredential)
+	credential.FromDomainModel(domainCredential)
 
 	err := db.
 		NewInsert().
@@ -66,5 +53,5 @@ func (repository *CredentialsRepository) CreateOne(ctx context.Context, domainCr
 		Model(&credential).
 		Scan(ctx)
 
-	return credential.ToDomain(), err
+	return credential.ToDomainModel(), err
 }

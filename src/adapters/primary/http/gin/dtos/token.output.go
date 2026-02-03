@@ -1,6 +1,6 @@
 package dtos
 
-import "github.com/lautarok/hexa/src/core/domain"
+import "github.com/lautarok/hexa/src/domain/models"
 
 type TokenOutputDto struct {
 	Token string        `json:"token"`
@@ -8,10 +8,10 @@ type TokenOutputDto struct {
 	User  UserOutputDto `json:"user"`
 }
 
-func NewTokenOutputDto(token string, exp int64, user *domain.User) *TokenOutputDto {
+func NewTokenOutputDto(token string, exp int64, userModel *models.User) *TokenOutputDto {
 	return &TokenOutputDto{
 		Token: token,
 		Exp:   exp,
-		User:  *NewUserOutputDto(user),
+		User:  *NewUserOutputDto(userModel),
 	}
 }

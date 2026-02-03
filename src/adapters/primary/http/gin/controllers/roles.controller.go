@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/middlewares"
-	"github.com/lautarok/hexa/src/core/errors"
-	"github.com/lautarok/hexa/src/core/ports"
-	rolesCommand "github.com/lautarok/hexa/src/core/usecases/roles/command"
-	rolesQuery "github.com/lautarok/hexa/src/core/usecases/roles/query"
+	rolesCommand "github.com/lautarok/hexa/src/application/usecases/roles/command"
+	rolesQuery "github.com/lautarok/hexa/src/application/usecases/roles/query"
+	"github.com/lautarok/hexa/src/domain/errors"
+	"github.com/lautarok/hexa/src/domain/ports"
 )
 
 type RolesController struct {

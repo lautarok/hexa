@@ -1,6 +1,6 @@
 package dtos
 
-import "github.com/lautarok/hexa/src/core/ports"
+import "github.com/lautarok/hexa/src/domain/ports"
 
 type LoginInputDto struct {
 	UsernameOrEmail string `validate:"required,username|email" json:"usernameOrEmail"`

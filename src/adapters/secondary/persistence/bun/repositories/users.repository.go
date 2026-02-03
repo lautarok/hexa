@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 	"github.com/uptrace/bun"
 )
 
@@ -20,13 +20,13 @@ type UsersRepositoryDeps struct {
 	PersistenceAdapter *bunPersistence.BunAdapter
 }
 
-func NewUsersRepository(deps *UsersRepositoryDeps) domain.IUsersRepository {
+func NewUsersRepository(deps *UsersRepositoryDeps) models.IUsersRepository {
 	return &UsersRepository{
 		persistenceAdapter: deps.PersistenceAdapter,
 	}
 }
 
-func (repository *UsersRepository) FindMany(ctx context.Context, skip int, limit int) ([]*domain.User, error) {
+func (repository *UsersRepository) FindMany(ctx context.Context, skip int, limit int) ([]*models.User, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var userList []*entities.User
@@ -44,19 +44,19 @@ func (repository *UsersRepository) FindMany(ctx context.Context, skip int, limit
 		return nil, err
 	}
 
-	domainUserList := []*domain.User{}
+	domainUserList := []*models.User{}
 	for _, user := range userList {
-		domainUserList = append(domainUserList, user.ToDomain())
+		domainUserList = append(domainUserList, user.ToDomainModel())
 	}
 
 	return domainUserList, nil
 }
 
-func (repository *UsersRepository) CreateOne(ctx context.Context, domainUser *domain.User) (*domain.User, error) {
+func (repository *UsersRepository) CreateOne(ctx context.Context, domainUser *models.User) (*models.User, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var user entities.User
-	user.FromDomain(domainUser)
+	user.FromDomainModel(domainUser)
 
 	err := db.
 		NewInsert().
@@ -64,10 +64,10 @@ func (repository *UsersRepository) CreateOne(ctx context.Context, domainUser *do
 		Model(&user).
 		Scan(ctx)
 
-	return user.ToDomain(), err
+	return user.ToDomainModel(), err
 }
 
-func (repository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (repository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var user entities.User
@@ -87,7 +87,7 @@ func (repository *UsersRepository) FindOneByID(ctx context.Context, id uuid.UUID
 		return nil, err
 	}
 
-	return user.ToDomain(), nil
+	return user.ToDomainModel(), nil
 }
 
 func (repository *UsersRepository) DeleteOne(ctx context.Context, id uuid.UUID) error {
@@ -101,11 +101,11 @@ func (repository *UsersRepository) DeleteOne(ctx context.Context, id uuid.UUID) 
 	return err
 }
 
-func (repository *UsersRepository) UpdateOne(ctx context.Context, user *domain.User) (*domain.User, error) {
+func (repository *UsersRepository) UpdateOne(ctx context.Context, user *models.User) (*models.User, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityUser entities.User
-	entityUser.FromDomain(user)
+	entityUser.FromDomainModel(user)
 
 	_, err := db.NewUpdate().
 		Model(&entityUser).
@@ -127,5 +127,5 @@ func (repository *UsersRepository) UpdateOne(ctx context.Context, user *domain.U
 		return nil, err
 	}
 
-	return entityUser.ToDomain(), nil
+	return entityUser.ToDomainModel(), nil
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	bunPersistence "github.com/lautarok/hexa/src/adapters/secondary/persistence/bun"
 	"github.com/lautarok/hexa/src/adapters/secondary/persistence/bun/entities"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 	"github.com/uptrace/bun"
 )
 
@@ -19,13 +19,13 @@ type RolesRepositoryDeps struct {
 	PersistenceAdapter *bunPersistence.BunAdapter
 }
 
-func NewRolesRepository(deps *RolesRepositoryDeps) domain.IRolesRepository {
+func NewRolesRepository(deps *RolesRepositoryDeps) models.IRolesRepository {
 	return &RolesRepository{
 		persistenceAdapter: deps.PersistenceAdapter,
 	}
 }
 
-func (repository *RolesRepository) GetOneBySlug(ctx context.Context, slug string) (*domain.Role, error) {
+func (repository *RolesRepository) GetOneBySlug(ctx context.Context, slug string) (*models.Role, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var role entities.Role
@@ -35,10 +35,10 @@ func (repository *RolesRepository) GetOneBySlug(ctx context.Context, slug string
 		Where("slug = ?", slug).
 		Scan(ctx)
 
-	return role.ToDomain(), err
+	return role.ToDomainModel(), err
 }
 
-func (repository *RolesRepository) FindMany(ctx context.Context, skip int, limit int) ([]*domain.Role, error) {
+func (repository *RolesRepository) FindMany(ctx context.Context, skip int, limit int) ([]*models.Role, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityRoleList []*entities.Role
@@ -52,20 +52,20 @@ func (repository *RolesRepository) FindMany(ctx context.Context, skip int, limit
 		return nil, err
 	}
 
-	roleList := []*domain.Role{}
+	roleList := []*models.Role{}
 
 	for _, entityRole := range entityRoleList {
-		roleList = append(roleList, entityRole.ToDomain())
+		roleList = append(roleList, entityRole.ToDomainModel())
 	}
 
 	return roleList, err
 }
 
-func (repository *RolesRepository) CreateOne(ctx context.Context, domainRole *domain.Role) (*domain.Role, error) {
+func (repository *RolesRepository) CreateOne(ctx context.Context, domainRole *models.Role) (*models.Role, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityRole entities.Role
-	entityRole.FromDomain(domainRole)
+	entityRole.FromDomainModel(domainRole)
 
 	err := db.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) error {
 		err := tx.NewInsert().
@@ -110,7 +110,7 @@ func (repository *RolesRepository) CreateOne(ctx context.Context, domainRole *do
 		return nil, err
 	}
 
-	return entityRole.ToDomain(), nil
+	return entityRole.ToDomainModel(), nil
 }
 
 func (repository *RolesRepository) DeleteOne(ctx context.Context, id uuid.UUID) error {
@@ -124,11 +124,11 @@ func (repository *RolesRepository) DeleteOne(ctx context.Context, id uuid.UUID) 
 	return err
 }
 
-func (repository *RolesRepository) UpdateOne(ctx context.Context, role *domain.Role) (*domain.Role, error) {
+func (repository *RolesRepository) UpdateOne(ctx context.Context, role *models.Role) (*models.Role, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var entityRole *entities.Role
-	entityRole.FromDomain(role)
+	entityRole.FromDomainModel(role)
 
 	err := db.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) error {
 		_, err := tx.NewUpdate().
@@ -172,5 +172,5 @@ func (repository *RolesRepository) UpdateOne(ctx context.Context, role *domain.R
 		return nil, err
 	}
 
-	return entityRole.ToDomain(), nil
+	return entityRole.ToDomainModel(), nil
 }

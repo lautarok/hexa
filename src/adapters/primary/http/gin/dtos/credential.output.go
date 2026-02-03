@@ -2,7 +2,7 @@ package dtos
 
 import (
 	"github.com/google/uuid"
-	"github.com/lautarok/hexa/src/core/domain"
+	"github.com/lautarok/hexa/src/domain/models"
 )
 
 type CredentialOutputDto struct {
@@ -11,12 +11,12 @@ type CredentialOutputDto struct {
 	Email    string    `json:"email"`
 }
 
-func NewCredentialOutputDto(domainCredential *domain.Credential) *CredentialOutputDto {
+func NewCredentialOutputDto(credentialModel *models.Credential) *CredentialOutputDto {
 	credential := &CredentialOutputDto{}
 
-	credential.ID = domainCredential.ID
-	credential.Username = domainCredential.Username
-	credential.Email = domainCredential.Email
+	credential.ID = credentialModel.ID
+	credential.Username = credentialModel.Username
+	credential.Email = credentialModel.Email
 
 	return credential
 }

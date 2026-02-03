@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lautarok/hexa/src/core/errors"
-	authQuery "github.com/lautarok/hexa/src/core/usecases/auth/query"
+	authQuery "github.com/lautarok/hexa/src/application/usecases/auth/query"
+	"github.com/lautarok/hexa/src/domain/errors"
 )
 
 type AuthMiddleware struct {
