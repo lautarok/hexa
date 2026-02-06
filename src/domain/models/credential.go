@@ -20,4 +20,5 @@ type Credential struct {
 type ICredentialsRepository interface {
 	FindByUsernameOrEmail(ctx context.Context, usernameOrEmail string) (*Credential, error)
 	CreateOne(ctx context.Context, credentials *Credential) (*Credential, error)
+	UpdateOne(ctx context.Context, domainCredential *Credential) (*Credential, error)
 }

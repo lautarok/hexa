@@ -23,6 +23,7 @@ import (
 	permimssionsQuery "github.com/lautarok/hexa/src/application/usecases/permissions/query"
 	rolesCommand "github.com/lautarok/hexa/src/application/usecases/roles/command"
 	rolesQuery "github.com/lautarok/hexa/src/application/usecases/roles/query"
+	usersCommand "github.com/lautarok/hexa/src/application/usecases/users/command"
 	usersQuery "github.com/lautarok/hexa/src/application/usecases/users/query"
 )
 
@@ -184,20 +185,25 @@ func main() {
 		GoogleOAuth2Adapter:        googleOauth2Adapter,
 		IdentityAdapter:            identityAdapter,
 	})
+	updateCredentialUsecase := usersCommand.NewUpdateCredentialsUsecase(&usersCommand.UpdateCredentialUsecaseDeps{
+		CredentialsRepository: credentialsRepository,
+	})
 
 	authMiddleware := middlewares.NewAuthMiddleware(&middlewares.AuthMiddlewareDeps{
 		GetUserFromTokenUsecase: getUserFromTokenUsecase,
 	})
 
 	usersController := controllers.NewUsersController(&controllers.UsersControllerDeps{
-		GetUsersUsecase: getUsersUsecase,
-		Validation:      validationAdapter,
+		GetUsersUsecase:         getUsersUsecase,
+		UpdateCredentialUsecase: updateCredentialUsecase,
+		AuthMiddleware:          authMiddleware,
+		Validation:              validationAdapter,
 	})
 	authController := controllers.NewAuthController(&controllers.AuthControllerDeps{
 		SignupUsecase:  signupUsecase,
 		LoginUsecase:   loginUsecase,
-		Validation:     validationAdapter,
 		AuthMiddleware: authMiddleware,
+		Validation:     validationAdapter,
 	})
 	rolesController := controllers.NewRolesController(&controllers.RolesControllerDeps{
 		GetRolesUsecase:   getRolesUsecase,
@@ -207,6 +213,7 @@ func main() {
 	})
 	permissionsController := controllers.NewPermissionsController(&controllers.PermissionsControllerDeps{
 		GetPermissionsUsecase: getPermissionsUsecase,
+		AuthMiddleware:        authMiddleware,
 		Validation:            validationAdapter,
 	})
 	oauth2Controller := controllers.NewOAuth2Controller(&controllers.OAuth2ControllerDeps{

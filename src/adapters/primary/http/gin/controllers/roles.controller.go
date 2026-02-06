@@ -41,8 +41,8 @@ func (controller *RolesController) Name() string {
 
 func (controller *RolesController) Register(router *gin.RouterGroup) {
 	group := router.Group(controller.Name())
-	group.GET("/", controller.GetRoleList)
-	group.POST("/", controller.CreateRole)
+	group.GET("/", controller.authMiddleware.HandleAuth("admin"), controller.GetRoleList)
+	group.POST("/", controller.authMiddleware.HandleAuth("admin"), controller.CreateRole)
 }
 
 func (controller *RolesController) GetRoleList(ctx *gin.Context) {

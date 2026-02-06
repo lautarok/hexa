@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	authQuery "github.com/lautarok/hexa/src/application/usecases/auth/query"
 	"github.com/lautarok/hexa/src/domain/errors"
 )
@@ -46,6 +47,29 @@ func (middleware *AuthMiddleware) HandleAuth(permissionAlias ...string) gin.Hand
 
 		for _, requiredPermission := range permissionAlias {
 			haveThisPermission := false
+			if requiredPermission == "user:self" {
+				var targetDto struct {
+					UserID uuid.UUID `json:"userId"`
+					ID     uuid.UUID `json:"id"`
+				}
+				err := ctx.ShouldBindJSON(&targetDto)
+				if err != nil {
+					continue
+				}
+
+				targetId := targetDto.UserID
+				if targetId == uuid.Nil {
+					targetId = targetDto.ID
+				}
+
+				if targetId != userFromToken.User.ID {
+					continue
+				}
+
+				haveThisPermission = true
+				break
+			}
+
 			for _, havePermission := range userFromToken.User.Role.Permissions {
 				if requiredPermission == havePermission.Alias {
 					haveThisPermission = true

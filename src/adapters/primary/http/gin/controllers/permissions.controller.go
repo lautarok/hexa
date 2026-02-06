@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lautarok/hexa/src/adapters/primary/http/gin/dtos"
+	"github.com/lautarok/hexa/src/adapters/primary/http/gin/middlewares"
 	permissionsQuery "github.com/lautarok/hexa/src/application/usecases/permissions/query"
 	"github.com/lautarok/hexa/src/domain/errors"
 	"github.com/lautarok/hexa/src/domain/ports"
@@ -12,17 +13,20 @@ import (
 
 type PermissionsController struct {
 	getPermissionsUsecase *permissionsQuery.GetPermissionsUsecase
+	authMiddleware        *middlewares.AuthMiddleware
 	validation            ports.ValidationPort
 }
 
 type PermissionsControllerDeps struct {
 	GetPermissionsUsecase *permissionsQuery.GetPermissionsUsecase
+	AuthMiddleware        *middlewares.AuthMiddleware
 	Validation            ports.ValidationPort
 }
 
 func NewPermissionsController(deps *PermissionsControllerDeps) *PermissionsController {
 	return &PermissionsController{
 		getPermissionsUsecase: deps.GetPermissionsUsecase,
+		authMiddleware:        deps.AuthMiddleware,
 		validation:            deps.Validation,
 	}
 }
@@ -33,7 +37,7 @@ func (controller *PermissionsController) Name() string {
 
 func (controller *PermissionsController) Register(router *gin.RouterGroup) {
 	group := router.Group(controller.Name())
-	group.GET("/", controller.GetPermissionList)
+	group.GET("/", controller.authMiddleware.HandleAuth("admin"), controller.GetPermissionList)
 }
 
 func (controller *PermissionsController) GetPermissionList(ctx *gin.Context) {

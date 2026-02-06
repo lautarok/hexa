@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/lautarok/hexa/src/domain/ports"
-	"github.com/lautarok/hexa/src/domain/ports/dtos"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -41,7 +40,15 @@ func (adapter *GoogleOauth2Adapter) GetLoginURL(ctx context.Context, locale stri
 	return config.AuthCodeURL("state")
 }
 
-func (adapter *GoogleOauth2Adapter) HandleCallback(ctx context.Context, locale string, code string) (*dtos.GoogleIdentityDto, error) {
+type UserInfo struct {
+	ID         string `json:"id"`
+	Email      string `json:"email"`
+	Name       string `json:"name"`
+	GivenName  string `json:"given_name"`
+	FamilyName string `json:"family_name"`
+}
+
+func (adapter *GoogleOauth2Adapter) HandleCallback(ctx context.Context, locale string, code string) (*ports.GoogleOAuth2HandleCallbackResult, error) {
 	config := *adapter.config
 	config.RedirectURL = strings.Replace(adapter.config.RedirectURL, ":locale", locale, 1)
 
@@ -58,24 +65,16 @@ func (adapter *GoogleOauth2Adapter) HandleCallback(ctx context.Context, locale s
 	}
 	defer response.Body.Close()
 
-	var userInfo struct {
-		ID         string `json:"id"`
-		Email      string `json:"email"`
-		Name       string `json:"name"`
-		GivenName  string `json:"given_name"`
-		FamilyName string `json:"family_name"`
-	}
-
+	var userInfo UserInfo
 	if err := json.NewDecoder(response.Body).Decode(&userInfo); err != nil {
 		return nil, err
 	}
 
-	return &dtos.GoogleIdentityDto{
+	return &ports.GoogleOAuth2HandleCallbackResult{
 		GoogleID:   userInfo.ID,
-		Email:      userInfo.Email,
-		Name:       userInfo.Name,
-		GivenName:  userInfo.GivenName,
 		FamilyName: userInfo.FamilyName,
+		GivenName:  userInfo.GivenName,
+		Email:      userInfo.Email,
 	}, nil
 }
 

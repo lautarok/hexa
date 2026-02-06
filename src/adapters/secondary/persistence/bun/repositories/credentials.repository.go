@@ -41,16 +41,32 @@ func (repository *CredentialsRepository) FindByUsernameOrEmail(
 	return credential.ToDomainModel(), nil
 }
 
-func (repository *CredentialsRepository) CreateOne(ctx context.Context, domainCredential *models.Credential) (*models.Credential, error) {
+func (repository *CredentialsRepository) CreateOne(ctx context.Context, credentialModel *models.Credential) (*models.Credential, error) {
 	db := repository.persistenceAdapter.GetDB(ctx)
 
 	var credential entities.Credential
-	credential.FromDomainModel(domainCredential)
+	credential.FromDomainModel(credentialModel)
 
 	err := db.
 		NewInsert().
 		Returning("*").
 		Model(&credential).
+		Scan(ctx)
+
+	return credential.ToDomainModel(), err
+}
+
+func (repository *CredentialsRepository) UpdateOne(ctx context.Context, credentialModel *models.Credential) (*models.Credential, error) {
+	db := repository.persistenceAdapter.GetDB(ctx)
+
+	var credential entities.Credential
+	credential.FromDomainModel(credentialModel)
+
+	err := db.
+		NewUpdate().
+		Where("user_id = ?", credentialModel.UserID).
+		Model(&credential).
+		Returning("*").
 		Scan(ctx)
 
 	return credential.ToDomainModel(), err
